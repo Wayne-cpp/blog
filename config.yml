@@ -61,7 +61,7 @@ params:
 
   profileMode:
     enabled: false
-title: Wayne Blog
+    title: Wayne Blog
     imageUrl: "#"
     imageTitle: my image
     # imageWidth: 120
