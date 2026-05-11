@@ -81,13 +81,9 @@ params:
 
       - 感谢 Hugo 与 PaperMod 主题。
 
-  socialIcons:
-    - name: github
-      url: "https://github.com/adityatelange/hugo-PaperMod"
-    - name: KoFi
-      url: "https://ko-fi.com/adityatelange"
-    - name: RsS
-      url: "index.xml"
+  # socialIcons:
+  #   - name: github
+  #     url: "https://github.com/WayneGreat"
 
   editPost:
     URL: "https://github.com/adityatelange/hugo-PaperMod/tree/exampleSite/content"
