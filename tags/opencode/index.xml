@@ -11,12 +11,12 @@
     </image>
     <generator>Hugo</generator>
     <language>en</language>
-    <lastBuildDate>Mon, 11 May 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 11 May 2026 10:00:00 +0800</lastBuildDate>
     <atom:link href="https://Wayne-cpp.github.io/blog/tags/opencode/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>用 AI Agent 构建零代码知识库：采集、分析、归档一条龙</title>
       <link>https://Wayne-cpp.github.io/blog/posts/ai-knowledge-base-with-agents/</link>
-      <pubDate>Mon, 11 May 2026 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 11 May 2026 10:00:00 +0800</pubDate>
       <guid>https://Wayne-cpp.github.io/blog/posts/ai-knowledge-base-with-agents/</guid>
       <description>探讨如何利用 AI Agent 协作流水线，在零业务代码的情况下实现技术情报的自动采集、深度分析与结构化归档。</description>
     </item>
