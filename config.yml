@@ -1,5 +1,5 @@
 baseURL: "https://WayneGreat.github.io/Blog"
-title: PaperMod
+title: Wayne Blog
 paginate: 5
 theme: hugo-PaperMod
 
@@ -42,8 +42,8 @@ outputs:
 
 params:
   env: production # to enable google analytics, opengraph, twitter-cards and schema.
-  description: "Theme PaperMod - https://github.com/adityatelange/hugo-PaperMod"
-  author: Theme PaperMod
+  description: "Wayne Blog"
+  author: Wayne
   # author: ["Me", "You"] # multiple authors
 
   defaultTheme: auto
