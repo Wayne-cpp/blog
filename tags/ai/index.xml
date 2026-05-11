@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Wayne Blog</title>
-    <link>https://Wayne-cpp.github.io/blog/</link>
-    <description>Recent content on Wayne Blog</description>
+    <title>AI on Wayne Blog</title>
+    <link>https://Wayne-cpp.github.io/blog/tags/ai/</link>
+    <description>Recent content in AI on Wayne Blog</description>
     <image>
       <title>Wayne Blog</title>
       <url>https://Wayne-cpp.github.io/blog/papermod-cover.png</url>
@@ -12,14 +12,7 @@
     <generator>Hugo</generator>
     <language>en</language>
     <lastBuildDate>Mon, 11 May 2026 00:00:00 +0000</lastBuildDate>
-    <atom:link href="https://Wayne-cpp.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>如何发布文章</title>
-      <link>https://Wayne-cpp.github.io/blog/posts/how-to-publish/</link>
-      <pubDate>Mon, 11 May 2026 00:00:00 +0000</pubDate>
-      <guid>https://Wayne-cpp.github.io/blog/posts/how-to-publish/</guid>
-      <description>介绍在本博客中创建、预览和发布文章的完整流程。</description>
-    </item>
+    <atom:link href="https://Wayne-cpp.github.io/blog/tags/ai/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>用 AI Agent 构建零代码知识库：采集、分析、归档一条龙</title>
       <link>https://Wayne-cpp.github.io/blog/posts/ai-knowledge-base-with-agents/</link>
