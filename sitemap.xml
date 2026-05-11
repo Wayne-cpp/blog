@@ -2,27 +2,46 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://awesome-actions-template.github.io/hugo-papermod-template/tags/emoji/</loc>
+    <loc>https://Wayne-cpp.github.io/blog/categories/</loc>
+    <lastmod>2026-05-11T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://Wayne-cpp.github.io/blog/posts/</loc>
+    <lastmod>2026-05-11T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://Wayne-cpp.github.io/blog/tags/</loc>
+    <lastmod>2026-05-11T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://Wayne-cpp.github.io/blog/</loc>
+    <lastmod>2026-05-11T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://Wayne-cpp.github.io/blog/categories/%E5%8D%9A%E5%AE%A2/</loc>
+    <lastmod>2026-05-11T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://Wayne-cpp.github.io/blog/posts/how-to-publish/</loc>
+    <lastmod>2026-05-11T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://Wayne-cpp.github.io/blog/posts/my-first-post/</loc>
+    <lastmod>2026-05-11T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://Wayne-cpp.github.io/blog/tags/%E6%95%99%E7%A8%8B/</loc>
+    <lastmod>2026-05-11T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://Wayne-cpp.github.io/blog/categories/%E7%94%9F%E6%B4%BB/</loc>
+    <lastmod>2026-05-11T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://Wayne-cpp.github.io/blog/tags/%E9%9A%8F%E7%AC%94/</loc>
+    <lastmod>2026-05-11T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://Wayne-cpp.github.io/blog/tags/emoji/</loc>
     <lastmod>2022-01-16T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://awesome-actions-template.github.io/hugo-papermod-template/posts/hello-world/</loc>
+    <loc>https://Wayne-cpp.github.io/blog/posts/hello-world/</loc>
     <lastmod>2022-01-16T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://awesome-actions-template.github.io/hugo-papermod-template/</loc>
-    <lastmod>2022-01-16T00:00:00+00:00</lastmod>
+    <loc>https://Wayne-cpp.github.io/blog/archives/</loc>
   </url><url>
-    <loc>https://awesome-actions-template.github.io/hugo-papermod-template/posts/</loc>
-    <lastmod>2022-01-16T00:00:00+00:00</lastmod>
+    <loc>https://Wayne-cpp.github.io/blog/search/</loc>
   </url><url>
-    <loc>https://awesome-actions-template.github.io/hugo-papermod-template/tags/</loc>
-    <lastmod>2022-01-16T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://awesome-actions-template.github.io/hugo-papermod-template/archives/</loc>
-  </url><url>
-    <loc>https://awesome-actions-template.github.io/hugo-papermod-template/categories/</loc>
-  </url><url>
-    <loc>https://awesome-actions-template.github.io/hugo-papermod-template/search/</loc>
-  </url><url>
-    <loc>https://awesome-actions-template.github.io/hugo-papermod-template/series/</loc>
+    <loc>https://Wayne-cpp.github.io/blog/series/</loc>
   </url>
 </urlset>

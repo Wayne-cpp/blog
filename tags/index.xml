@@ -1,24 +1,38 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Tags on PaperMod</title>
-    <link>https://awesome-actions-template.github.io/hugo-papermod-template/tags/</link>
-    <description>Recent content in Tags on PaperMod</description>
+    <title>Tags on Wayne Blog</title>
+    <link>https://Wayne-cpp.github.io/blog/tags/</link>
+    <description>Recent content in Tags on Wayne Blog</description>
     <image>
-      <title>PaperMod</title>
-      <url>https://awesome-actions-template.github.io/hugo-papermod-template/papermod-cover.png</url>
-      <link>https://awesome-actions-template.github.io/hugo-papermod-template/papermod-cover.png</link>
+      <title>Wayne Blog</title>
+      <url>https://Wayne-cpp.github.io/blog/papermod-cover.png</url>
+      <link>https://Wayne-cpp.github.io/blog/papermod-cover.png</link>
     </image>
-    <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Sun, 16 Jan 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://awesome-actions-template.github.io/hugo-papermod-template/tags/index.xml" rel="self" type="application/rss+xml" />
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 11 May 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://Wayne-cpp.github.io/blog/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>emoji</title>
-      <link>https://awesome-actions-template.github.io/hugo-papermod-template/tags/emoji/</link>
-      <pubDate>Sun, 16 Jan 2022 00:00:00 +0000</pubDate>
-      
-      <guid>https://awesome-actions-template.github.io/hugo-papermod-template/tags/emoji/</guid>
+      <title>教程</title>
+      <link>https://Wayne-cpp.github.io/blog/tags/%E6%95%99%E7%A8%8B/</link>
+      <pubDate>Mon, 11 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/tags/%E6%95%99%E7%A8%8B/</guid>
       <description></description>
     </item>
-    
+    <item>
+      <title>随笔</title>
+      <link>https://Wayne-cpp.github.io/blog/tags/%E9%9A%8F%E7%AC%94/</link>
+      <pubDate>Mon, 11 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/tags/%E9%9A%8F%E7%AC%94/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Emoji</title>
+      <link>https://Wayne-cpp.github.io/blog/tags/emoji/</link>
+      <pubDate>Sun, 16 Jan 2022 00:00:00 +0000</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/tags/emoji/</guid>
+      <description></description>
+    </item>
   </channel>
 </rss>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>教程 on Wayne Blog</title>
+    <link>https://Wayne-cpp.github.io/blog/tags/%E6%95%99%E7%A8%8B/</link>
+    <description>Recent content in 教程 on Wayne Blog</description>
+    <image>
+      <title>Wayne Blog</title>
+      <url>https://Wayne-cpp.github.io/blog/papermod-cover.png</url>
+      <link>https://Wayne-cpp.github.io/blog/papermod-cover.png</link>
+    </image>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 11 May 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://Wayne-cpp.github.io/blog/tags/%E6%95%99%E7%A8%8B/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>如何发布博客文章</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/how-to-publish/</link>
+      <pubDate>Mon, 11 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/how-to-publish/</guid>
+      <description>介绍向本博客提交文章的几种方式。</description>
+    </item>
+  </channel>
+</rss>
