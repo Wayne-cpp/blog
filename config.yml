@@ -73,7 +73,7 @@ params:
         url: tags
 
   homeInfoParams:
-    Title: "WayneGreat 的博客"
+    Title: "Wayne 的博客"
     Content: >
       欢迎来到我的博客！
 
