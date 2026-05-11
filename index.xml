@@ -14,25 +14,11 @@
     <lastBuildDate>Mon, 11 May 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://Wayne-cpp.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>如何发布博客文章</title>
+      <title>如何发布文章</title>
       <link>https://Wayne-cpp.github.io/blog/posts/how-to-publish/</link>
       <pubDate>Mon, 11 May 2026 00:00:00 +0000</pubDate>
       <guid>https://Wayne-cpp.github.io/blog/posts/how-to-publish/</guid>
-      <description>介绍向本博客提交文章的几种方式。</description>
-    </item>
-    <item>
-      <title>我的第一篇文章</title>
-      <link>https://Wayne-cpp.github.io/blog/posts/my-first-post/</link>
-      <pubDate>Mon, 11 May 2026 00:00:00 +0000</pubDate>
-      <guid>https://Wayne-cpp.github.io/blog/posts/my-first-post/</guid>
-      <description>这是我在 GitHub Pages 上发布的第一篇文章，记录搭建博客的过程。</description>
-    </item>
-    <item>
-      <title>Hello World</title>
-      <link>https://Wayne-cpp.github.io/blog/posts/hello-world/</link>
-      <pubDate>Sun, 16 Jan 2022 00:00:00 +0000</pubDate>
-      <guid>https://Wayne-cpp.github.io/blog/posts/hello-world/</guid>
-      <description>Guide to Hugo-PaperMod-Template</description>
+      <description>介绍在本博客中创建、预览和发布文章的完整流程。</description>
     </item>
   </channel>
 </rss>

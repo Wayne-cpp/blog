@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>博客 on Wayne Blog</title>
-    <link>https://Wayne-cpp.github.io/blog/categories/%E5%8D%9A%E5%AE%A2/</link>
-    <description>Recent content in 博客 on Wayne Blog</description>
+    <title>Hugo on Wayne Blog</title>
+    <link>https://Wayne-cpp.github.io/blog/tags/hugo/</link>
+    <description>Recent content in Hugo on Wayne Blog</description>
     <image>
       <title>Wayne Blog</title>
       <url>https://Wayne-cpp.github.io/blog/papermod-cover.png</url>
@@ -12,7 +12,7 @@
     <generator>Hugo</generator>
     <language>en</language>
     <lastBuildDate>Mon, 11 May 2026 00:00:00 +0000</lastBuildDate>
-    <atom:link href="https://Wayne-cpp.github.io/blog/categories/%E5%8D%9A%E5%AE%A2/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://Wayne-cpp.github.io/blog/tags/hugo/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>如何发布文章</title>
       <link>https://Wayne-cpp.github.io/blog/posts/how-to-publish/</link>
