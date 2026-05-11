@@ -1,6 +1,6 @@
 ---
 title: "用 AI Agent 构建零代码知识库：采集、分析、归档一条龙"
-date: 2026-05-11
+date: 2026-05-11T10:00:00+08:00
 tags: ["AI", "Agent", "LLM", "自动化", "OpenCode"]
 categories: ["技术"]
 summary: "探讨如何利用 AI Agent 协作流水线，在零业务代码的情况下实现技术情报的自动采集、深度分析与结构化归档。"
