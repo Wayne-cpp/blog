@@ -1,4 +1,4 @@
-baseURL: "https://WayneGreat.github.io/Blog"
+baseURL: "https://Wayne-cpp.github.io/blog"
 title: Wayne Blog
 paginate: 5
 theme: hugo-PaperMod
