@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>编译链接 on Wayne Blog</title>
+    <link>https://Wayne-cpp.github.io/blog/tags/%E7%BC%96%E8%AF%91%E9%93%BE%E6%8E%A5/</link>
+    <description>Recent content in 编译链接 on Wayne Blog</description>
+    <image>
+      <title>Wayne Blog</title>
+      <url>https://Wayne-cpp.github.io/blog/papermod-cover.png</url>
+      <link>https://Wayne-cpp.github.io/blog/papermod-cover.png</link>
+    </image>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Sat, 10 Jul 2021 14:00:00 +0800</lastBuildDate>
+    <atom:link href="https://Wayne-cpp.github.io/blog/tags/%E7%BC%96%E8%AF%91%E9%93%BE%E6%8E%A5/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>C&#43;&#43; 中 static、const、extern 关键字的作用与区别</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-static-const-extern/</link>
+      <pubDate>Sat, 10 Jul 2021 14:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-static-const-extern/</guid>
+      <description>深入解析 C++ 中 static、const、extern 三个关键字的语义：它们在不同语境（变量、函数、类成员、翻译单元）下的行为差异、常见陷阱，以及如何组合使用。</description>
+    </item>
+  </channel>
+</rss>

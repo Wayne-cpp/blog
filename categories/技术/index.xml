@@ -27,5 +27,12 @@
       <guid>https://Wayne-cpp.github.io/blog/posts/ai-knowledge-base-with-agents/</guid>
       <description>探讨如何利用 AI Agent 协作流水线，在零业务代码的情况下实现技术情报的自动采集、深度分析与结构化归档。</description>
     </item>
+    <item>
+      <title>C&#43;&#43; 中 static、const、extern 关键字的作用与区别</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-static-const-extern/</link>
+      <pubDate>Sat, 10 Jul 2021 14:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-static-const-extern/</guid>
+      <description>深入解析 C++ 中 static、const、extern 三个关键字的语义：它们在不同语境（变量、函数、类成员、翻译单元）下的行为差异、常见陷阱，以及如何组合使用。</description>
+    </item>
   </channel>
 </rss>
