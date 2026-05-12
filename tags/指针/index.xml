@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>C&#43;&#43; on Wayne Blog</title>
-    <link>https://Wayne-cpp.github.io/blog/tags/c&#43;&#43;/</link>
-    <description>Recent content in C&#43;&#43; on Wayne Blog</description>
+    <title>指针 on Wayne Blog</title>
+    <link>https://Wayne-cpp.github.io/blog/tags/%E6%8C%87%E9%92%88/</link>
+    <description>Recent content in 指针 on Wayne Blog</description>
     <image>
       <title>Wayne Blog</title>
       <url>https://Wayne-cpp.github.io/blog/papermod-cover.png</url>
@@ -12,20 +12,13 @@
     <generator>Hugo</generator>
     <language>en</language>
     <lastBuildDate>Sun, 11 Jul 2021 10:00:00 +0800</lastBuildDate>
-    <atom:link href="https://Wayne-cpp.github.io/blog/tags/c++/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://Wayne-cpp.github.io/blog/tags/%E6%8C%87%E9%92%88/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>C&#43;&#43; 指针与引用：从内存模型到实战陷阱</title>
       <link>https://Wayne-cpp.github.io/blog/posts/cpp-pointer-and-reference/</link>
       <pubDate>Sun, 11 Jul 2021 10:00:00 +0800</pubDate>
       <guid>https://Wayne-cpp.github.io/blog/posts/cpp-pointer-and-reference/</guid>
       <description>系统梳理 C++ 指针与引用的本质区别、使用场景、以及野指针与悬空指针的成因与防范。从内存模型出发，用代码示例讲清楚两者何时该用、何时不该用。</description>
-    </item>
-    <item>
-      <title>C&#43;&#43; 中 static、const、extern 关键字的作用与区别</title>
-      <link>https://Wayne-cpp.github.io/blog/posts/cpp-static-const-extern/</link>
-      <pubDate>Sat, 10 Jul 2021 14:00:00 +0800</pubDate>
-      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-static-const-extern/</guid>
-      <description>深入解析 C++ 中 static、const、extern 三个关键字的语义：它们在不同语境（变量、函数、类成员、翻译单元）下的行为差异、常见陷阱，以及如何组合使用。</description>
     </item>
   </channel>
 </rss>
