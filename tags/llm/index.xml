@@ -11,8 +11,15 @@
     </image>
     <generator>Hugo</generator>
     <language>en</language>
-    <lastBuildDate>Mon, 11 May 2026 10:00:00 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 12 May 2026 10:00:00 +0800</lastBuildDate>
     <atom:link href="https://Wayne-cpp.github.io/blog/tags/llm/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>从零代码到工程化：AI 知识库 V2 的进化之路</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/ai-knowledge-base-v2-pipeline/</link>
+      <pubDate>Tue, 12 May 2026 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/ai-knowledge-base-v2-pipeline/</guid>
+      <description>AI 知识库从 V1 的纯 Agent 声明式驱动，进化到 V2 的 Pipeline + Hooks + CI/CD 工程化体系。探讨为什么零代码很好，但有时还是需要写点代码。</description>
+    </item>
     <item>
       <title>用 AI Agent 构建零代码知识库：采集、分析、归档一条龙</title>
       <link>https://Wayne-cpp.github.io/blog/posts/ai-knowledge-base-with-agents/</link>

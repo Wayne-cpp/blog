@@ -11,27 +11,48 @@
     </image>
     <generator>Hugo</generator>
     <language>en</language>
-    <lastBuildDate>Mon, 11 May 2026 10:00:00 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 12 May 2026 10:00:00 +0800</lastBuildDate>
     <atom:link href="https://Wayne-cpp.github.io/blog/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Agent</title>
       <link>https://Wayne-cpp.github.io/blog/tags/agent/</link>
-      <pubDate>Mon, 11 May 2026 10:00:00 +0800</pubDate>
+      <pubDate>Tue, 12 May 2026 10:00:00 +0800</pubDate>
       <guid>https://Wayne-cpp.github.io/blog/tags/agent/</guid>
       <description></description>
     </item>
     <item>
       <title>AI</title>
       <link>https://Wayne-cpp.github.io/blog/tags/ai/</link>
-      <pubDate>Mon, 11 May 2026 10:00:00 +0800</pubDate>
+      <pubDate>Tue, 12 May 2026 10:00:00 +0800</pubDate>
       <guid>https://Wayne-cpp.github.io/blog/tags/ai/</guid>
       <description></description>
     </item>
     <item>
       <title>LLM</title>
       <link>https://Wayne-cpp.github.io/blog/tags/llm/</link>
-      <pubDate>Mon, 11 May 2026 10:00:00 +0800</pubDate>
+      <pubDate>Tue, 12 May 2026 10:00:00 +0800</pubDate>
       <guid>https://Wayne-cpp.github.io/blog/tags/llm/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>MCP</title>
+      <link>https://Wayne-cpp.github.io/blog/tags/mcp/</link>
+      <pubDate>Tue, 12 May 2026 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/tags/mcp/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Pipeline</title>
+      <link>https://Wayne-cpp.github.io/blog/tags/pipeline/</link>
+      <pubDate>Tue, 12 May 2026 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/tags/pipeline/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>自动化</title>
+      <link>https://Wayne-cpp.github.io/blog/tags/%E8%87%AA%E5%8A%A8%E5%8C%96/</link>
+      <pubDate>Tue, 12 May 2026 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/tags/%E8%87%AA%E5%8A%A8%E5%8C%96/</guid>
       <description></description>
     </item>
     <item>
@@ -39,13 +60,6 @@
       <link>https://Wayne-cpp.github.io/blog/tags/opencode/</link>
       <pubDate>Mon, 11 May 2026 10:00:00 +0800</pubDate>
       <guid>https://Wayne-cpp.github.io/blog/tags/opencode/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>自动化</title>
-      <link>https://Wayne-cpp.github.io/blog/tags/%E8%87%AA%E5%8A%A8%E5%8C%96/</link>
-      <pubDate>Mon, 11 May 2026 10:00:00 +0800</pubDate>
-      <guid>https://Wayne-cpp.github.io/blog/tags/%E8%87%AA%E5%8A%A8%E5%8C%96/</guid>
       <description></description>
     </item>
     <item>
