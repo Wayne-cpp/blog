@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Strcpy on Wayne Blog</title>
+    <link>https://Wayne-cpp.github.io/blog/tags/strcpy/</link>
+    <description>Recent content in Strcpy on Wayne Blog</description>
+    <image>
+      <title>Wayne Blog</title>
+      <url>https://Wayne-cpp.github.io/blog/papermod-cover.png</url>
+      <link>https://Wayne-cpp.github.io/blog/papermod-cover.png</link>
+    </image>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 15 Jul 2021 10:00:00 +0800</lastBuildDate>
+    <atom:link href="https://Wayne-cpp.github.io/blog/tags/strcpy/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>C/C&#43;&#43; memcpy 与 strcpy：语义差异、底层实现与 *cpy 家族全梳理</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-memcpy-vs-strcpy/</link>
+      <pubDate>Thu, 15 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-memcpy-vs-strcpy/</guid>
+      <description>memcpy 和 strcpy 都能复制一段内存，但语义截然不同——一个按字节拷贝，一个按字符串拷贝。本文从接口差异出发，深入 glibc 的底层实现（SSE/AVX 向量化拷贝），并梳理 strncpy、memmove、strcat 等 *cpy 系列函数各自的适用场景与常见陷阱。</description>
+    </item>
+  </channel>
+</rss>

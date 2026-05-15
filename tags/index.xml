@@ -63,24 +63,80 @@
       <description></description>
     </item>
     <item>
-      <title>Hugo</title>
-      <link>https://Wayne-cpp.github.io/blog/tags/hugo/</link>
-      <pubDate>Mon, 11 May 2026 08:00:00 +0800</pubDate>
-      <guid>https://Wayne-cpp.github.io/blog/tags/hugo/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>教程</title>
-      <link>https://Wayne-cpp.github.io/blog/tags/%E6%95%99%E7%A8%8B/</link>
-      <pubDate>Mon, 11 May 2026 08:00:00 +0800</pubDate>
-      <guid>https://Wayne-cpp.github.io/blog/tags/%E6%95%99%E7%A8%8B/</guid>
+      <title>C</title>
+      <link>https://Wayne-cpp.github.io/blog/tags/c/</link>
+      <pubDate>Thu, 15 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/tags/c/</guid>
       <description></description>
     </item>
     <item>
       <title>C&#43;&#43;</title>
       <link>https://Wayne-cpp.github.io/blog/tags/c&#43;&#43;/</link>
-      <pubDate>Tue, 13 Jul 2021 10:00:00 +0800</pubDate>
+      <pubDate>Thu, 15 Jul 2021 10:00:00 +0800</pubDate>
       <guid>https://Wayne-cpp.github.io/blog/tags/c&#43;&#43;/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Memcpy</title>
+      <link>https://Wayne-cpp.github.io/blog/tags/memcpy/</link>
+      <pubDate>Thu, 15 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/tags/memcpy/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Strcpy</title>
+      <link>https://Wayne-cpp.github.io/blog/tags/strcpy/</link>
+      <pubDate>Thu, 15 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/tags/strcpy/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>内存操作</title>
+      <link>https://Wayne-cpp.github.io/blog/tags/%E5%86%85%E5%AD%98%E6%93%8D%E4%BD%9C/</link>
+      <pubDate>Thu, 15 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/tags/%E5%86%85%E5%AD%98%E6%93%8D%E4%BD%9C/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>字符串</title>
+      <link>https://Wayne-cpp.github.io/blog/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/</link>
+      <pubDate>Thu, 15 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Glibc</title>
+      <link>https://Wayne-cpp.github.io/blog/tags/glibc/</link>
+      <pubDate>Wed, 14 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/tags/glibc/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Malloc</title>
+      <link>https://Wayne-cpp.github.io/blog/tags/malloc/</link>
+      <pubDate>Wed, 14 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/tags/malloc/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>New</title>
+      <link>https://Wayne-cpp.github.io/blog/tags/new/</link>
+      <pubDate>Wed, 14 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/tags/new/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>内存管理</title>
+      <link>https://Wayne-cpp.github.io/blog/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/</link>
+      <pubDate>Wed, 14 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>堆</title>
+      <link>https://Wayne-cpp.github.io/blog/tags/%E5%A0%86/</link>
+      <pubDate>Wed, 14 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/tags/%E5%A0%86/</guid>
       <description></description>
     </item>
     <item>
@@ -102,13 +158,6 @@
       <link>https://Wayne-cpp.github.io/blog/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/</link>
       <pubDate>Tue, 13 Jul 2021 10:00:00 +0800</pubDate>
       <guid>https://Wayne-cpp.github.io/blog/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>内存管理</title>
-      <link>https://Wayne-cpp.github.io/blog/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/</link>
-      <pubDate>Sun, 11 Jul 2021 10:00:00 +0800</pubDate>
-      <guid>https://Wayne-cpp.github.io/blog/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/</guid>
       <description></description>
     </item>
     <item>

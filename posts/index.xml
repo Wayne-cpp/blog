@@ -28,11 +28,18 @@
       <description>探讨如何利用 AI Agent 协作流水线，在零业务代码的情况下实现技术情报的自动采集、深度分析与结构化归档。</description>
     </item>
     <item>
-      <title>如何发布文章</title>
-      <link>https://Wayne-cpp.github.io/blog/posts/how-to-publish/</link>
-      <pubDate>Mon, 11 May 2026 08:00:00 +0800</pubDate>
-      <guid>https://Wayne-cpp.github.io/blog/posts/how-to-publish/</guid>
-      <description>介绍在本博客中创建、预览和发布文章的完整流程。</description>
+      <title>C/C&#43;&#43; memcpy 与 strcpy：语义差异、底层实现与 *cpy 家族全梳理</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-memcpy-vs-strcpy/</link>
+      <pubDate>Thu, 15 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-memcpy-vs-strcpy/</guid>
+      <description>memcpy 和 strcpy 都能复制一段内存，但语义截然不同——一个按字节拷贝，一个按字符串拷贝。本文从接口差异出发，深入 glibc 的底层实现（SSE/AVX 向量化拷贝），并梳理 strncpy、memmove、strcat 等 *cpy 系列函数各自的适用场景与常见陷阱。</description>
+    </item>
+    <item>
+      <title>C&#43;&#43; new/delete 与 C malloc/free：从接口差异到 glibc 堆管理原理</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-new-delete-vs-malloc-free/</link>
+      <pubDate>Wed, 14 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-new-delete-vs-malloc-free/</guid>
+      <description>C++ 的 new/delete 和 C 语言的 malloc/free 都用于动态内存管理，但它们分属不同的抽象层级。本文从接口语义出发，逐层深入到 new 如何调用 malloc、glibc ptmalloc2 的 chunk 结构与分配回收机制、以及 placement new 与 operator new 重载等进阶话题。</description>
     </item>
     <item>
       <title>C&#43;&#43; struct 与 class：从历史渊源到工程抉择</title>

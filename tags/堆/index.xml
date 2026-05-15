@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>堆 on Wayne Blog</title>
+    <link>https://Wayne-cpp.github.io/blog/tags/%E5%A0%86/</link>
+    <description>Recent content in 堆 on Wayne Blog</description>
+    <image>
+      <title>Wayne Blog</title>
+      <url>https://Wayne-cpp.github.io/blog/papermod-cover.png</url>
+      <link>https://Wayne-cpp.github.io/blog/papermod-cover.png</link>
+    </image>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Wed, 14 Jul 2021 10:00:00 +0800</lastBuildDate>
+    <atom:link href="https://Wayne-cpp.github.io/blog/tags/%E5%A0%86/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>C&#43;&#43; new/delete 与 C malloc/free：从接口差异到 glibc 堆管理原理</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-new-delete-vs-malloc-free/</link>
+      <pubDate>Wed, 14 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-new-delete-vs-malloc-free/</guid>
+      <description>C++ 的 new/delete 和 C 语言的 malloc/free 都用于动态内存管理，但它们分属不同的抽象层级。本文从接口语义出发，逐层深入到 new 如何调用 malloc、glibc ptmalloc2 的 chunk 结构与分配回收机制、以及 placement new 与 operator new 重载等进阶话题。</description>
+    </item>
+  </channel>
+</rss>
