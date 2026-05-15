@@ -28,6 +28,13 @@
       <description>探讨如何利用 AI Agent 协作流水线，在零业务代码的情况下实现技术情报的自动采集、深度分析与结构化归档。</description>
     </item>
     <item>
+      <title>C&#43;&#43; struct 与 class：从历史渊源到工程抉择</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-struct-vs-class/</link>
+      <pubDate>Tue, 13 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-struct-vs-class/</guid>
+      <description>C++ 同时拥有 struct 和 class 两个关键字，它们在语言层面几乎等价，却在工程实践中承载着不同的语义约定。本文从 C 语言的历史遗留出发，讲清楚两者的技术差异、现代 C++ 的聚合体初始化演变，以及 Google C++ Style Guide 与 C++ Core Guidelines 的使用建议。</description>
+    </item>
+    <item>
       <title>C&#43;&#43; 指针与引用：从内存模型到实战陷阱</title>
       <link>https://Wayne-cpp.github.io/blog/posts/cpp-pointer-and-reference/</link>
       <pubDate>Sun, 11 Jul 2021 10:00:00 +0800</pubDate>
