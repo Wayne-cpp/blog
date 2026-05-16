@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>引用 on Wayne Blog</title>
-    <link>https://Wayne-cpp.github.io/blog/tags/%E5%BC%95%E7%94%A8/</link>
-    <description>Recent content in 引用 on Wayne Blog</description>
+    <title>移动语义 on Wayne Blog</title>
+    <link>https://Wayne-cpp.github.io/blog/tags/%E7%A7%BB%E5%8A%A8%E8%AF%AD%E4%B9%89/</link>
+    <description>Recent content in 移动语义 on Wayne Blog</description>
     <image>
       <title>Wayne Blog</title>
       <url>https://Wayne-cpp.github.io/blog/papermod-cover.png</url>
@@ -12,20 +12,13 @@
     <generator>Hugo</generator>
     <language>en</language>
     <lastBuildDate>Sun, 25 Jul 2021 10:00:00 +0800</lastBuildDate>
-    <atom:link href="https://Wayne-cpp.github.io/blog/tags/%E5%BC%95%E7%94%A8/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://Wayne-cpp.github.io/blog/tags/%E7%A7%BB%E5%8A%A8%E8%AF%AD%E4%B9%89/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>C&#43;&#43; 左值、右值与移动语义：值类别全景解析</title>
       <link>https://Wayne-cpp.github.io/blog/posts/cpp-lvalue-rvalue-move-semantics/</link>
       <pubDate>Sun, 25 Jul 2021 10:00:00 +0800</pubDate>
       <guid>https://Wayne-cpp.github.io/blog/posts/cpp-lvalue-rvalue-move-semantics/</guid>
       <description>从 C++ 值类别体系出发，系统梳理左值与右值的本质区别、左值引用与右值引用的语法语义、移动语义的设计动机与实现原理，以及完美转发、万能引用等高级主题。讲清楚为什么 C++ 要引入这些概念，以及它们在实际工程中如何消除不必要的拷贝。</description>
-    </item>
-    <item>
-      <title>C&#43;&#43; 指针与引用：从内存模型到实战陷阱</title>
-      <link>https://Wayne-cpp.github.io/blog/posts/cpp-pointer-and-reference/</link>
-      <pubDate>Sun, 11 Jul 2021 10:00:00 +0800</pubDate>
-      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-pointer-and-reference/</guid>
-      <description>系统梳理 C++ 指针与引用的本质区别、使用场景、以及野指针与悬空指针的成因与防范。从内存模型出发，用代码示例讲清楚两者何时该用、何时不该用。</description>
     </item>
   </channel>
 </rss>

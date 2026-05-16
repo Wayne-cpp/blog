@@ -11,8 +11,15 @@
     </image>
     <generator>Hugo</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 22 Jul 2021 10:00:00 +0800</lastBuildDate>
+    <lastBuildDate>Sun, 25 Jul 2021 10:00:00 +0800</lastBuildDate>
     <atom:link href="https://Wayne-cpp.github.io/blog/tags/c++/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>C&#43;&#43; 左值、右值与移动语义：值类别全景解析</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-lvalue-rvalue-move-semantics/</link>
+      <pubDate>Sun, 25 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-lvalue-rvalue-move-semantics/</guid>
+      <description>从 C++ 值类别体系出发，系统梳理左值与右值的本质区别、左值引用与右值引用的语法语义、移动语义的设计动机与实现原理，以及完美转发、万能引用等高级主题。讲清楚为什么 C++ 要引入这些概念，以及它们在实际工程中如何消除不必要的拷贝。</description>
+    </item>
     <item>
       <title>C&#43;&#43; 智能指针：从 RAII 到所有权语义的全景解析</title>
       <link>https://Wayne-cpp.github.io/blog/posts/cpp-smart-pointer/</link>
