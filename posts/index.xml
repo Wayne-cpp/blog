@@ -28,6 +28,13 @@
       <description>探讨如何利用 AI Agent 协作流水线，在零业务代码的情况下实现技术情报的自动采集、深度分析与结构化归档。</description>
     </item>
     <item>
+      <title>C&#43;&#43; 智能指针：从 RAII 到所有权语义的全景解析</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-smart-pointer/</link>
+      <pubDate>Thu, 22 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-smart-pointer/</guid>
+      <description>系统梳理 C++ 智能指针的设计哲学与实现原理。从 RAII 机制出发，深入剖析 unique_ptr 的独占所有权、shared_ptr 的引用计数与控制块、weak_ptr 的观察者角色，以及自定义删除器、循环引用、性能开销等工程关键问题。</description>
+    </item>
+    <item>
       <title>C&#43;&#43; 虚函数、虚函数表与虚函数指针：多态的底层实现全解析</title>
       <link>https://Wayne-cpp.github.io/blog/posts/cpp-virtual-function/</link>
       <pubDate>Tue, 20 Jul 2021 10:00:00 +0800</pubDate>

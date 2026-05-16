@@ -11,8 +11,15 @@
     </image>
     <generator>Hugo</generator>
     <language>en</language>
-    <lastBuildDate>Wed, 14 Jul 2021 10:00:00 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 22 Jul 2021 10:00:00 +0800</lastBuildDate>
     <atom:link href="https://Wayne-cpp.github.io/blog/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>C&#43;&#43; 智能指针：从 RAII 到所有权语义的全景解析</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-smart-pointer/</link>
+      <pubDate>Thu, 22 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-smart-pointer/</guid>
+      <description>系统梳理 C++ 智能指针的设计哲学与实现原理。从 RAII 机制出发，深入剖析 unique_ptr 的独占所有权、shared_ptr 的引用计数与控制块、weak_ptr 的观察者角色，以及自定义删除器、循环引用、性能开销等工程关键问题。</description>
+    </item>
     <item>
       <title>C&#43;&#43; new/delete 与 C malloc/free：从接口差异到 glibc 堆管理原理</title>
       <link>https://Wayne-cpp.github.io/blog/posts/cpp-new-delete-vs-malloc-free/</link>
