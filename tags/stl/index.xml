@@ -21,7 +21,7 @@
       <description>深入剖析 C++ 分配器的设计哲学与实现机制。从默认的 std::allocator 出发，讲清楚 allocate/deallocate、construct/destroy 的演进，以及如何自定义分配器实现内存池、arena 分配等高性能策略。</description>
     </item>
     <item>
-      <title>C&#43;&#43; 函数对象（Functor）：从 operator() 到标准库函数对象</title>
+      <title>C&#43;&#43; STL 函数对象：从 operator() 到标准库函数对象</title>
       <link>https://Wayne-cpp.github.io/blog/posts/cpp-stl-functor/</link>
       <pubDate>Mon, 16 Aug 2021 10:00:00 +0800</pubDate>
       <guid>https://Wayne-cpp.github.io/blog/posts/cpp-stl-functor/</guid>

@@ -14,7 +14,7 @@
     <lastBuildDate>Mon, 16 Aug 2021 10:00:00 +0800</lastBuildDate>
     <atom:link href="https://Wayne-cpp.github.io/blog/tags/%E5%87%BD%E6%95%B0%E5%AF%B9%E8%B1%A1/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>C&#43;&#43; 函数对象（Functor）：从 operator() 到标准库函数对象</title>
+      <title>C&#43;&#43; STL 函数对象：从 operator() 到标准库函数对象</title>
       <link>https://Wayne-cpp.github.io/blog/posts/cpp-stl-functor/</link>
       <pubDate>Mon, 16 Aug 2021 10:00:00 +0800</pubDate>
       <guid>https://Wayne-cpp.github.io/blog/posts/cpp-stl-functor/</guid>
