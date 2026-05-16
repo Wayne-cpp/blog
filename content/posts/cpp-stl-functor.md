@@ -1,5 +1,5 @@
 ---
-title: "C++ 函数对象（Functor）：从 operator() 到标准库函数对象"
+title: "C++ STL 函数对象：从 operator() 到标准库函数对象"
 date: 2021-08-16T10:00:00+08:00
 tags: ["C++", "STL", "函数对象", "Functor", "operator()"]
 categories: ["技术"]
