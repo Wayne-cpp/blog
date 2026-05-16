@@ -44,13 +44,37 @@
     <loc>https://Wayne-cpp.github.io/blog/posts/ai-knowledge-base-with-agents/</loc>
     <lastmod>2026-05-11T10:00:00+08:00</lastmod>
   </url><url>
-    <loc>https://Wayne-cpp.github.io/blog/tags/c&#43;&#43;/</loc>
-    <lastmod>2021-08-15T10:00:00+08:00</lastmod>
+    <loc>https://Wayne-cpp.github.io/blog/tags/allocator/</loc>
+    <lastmod>2021-08-17T10:00:00+08:00</lastmod>
   </url><url>
-    <loc>https://Wayne-cpp.github.io/blog/posts/cpp-stl-algorithms/</loc>
-    <lastmod>2021-08-15T10:00:00+08:00</lastmod>
+    <loc>https://Wayne-cpp.github.io/blog/tags/c&#43;&#43;/</loc>
+    <lastmod>2021-08-17T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://Wayne-cpp.github.io/blog/posts/cpp-stl-allocator/</loc>
+    <lastmod>2021-08-17T10:00:00+08:00</lastmod>
   </url><url>
     <loc>https://Wayne-cpp.github.io/blog/tags/stl/</loc>
+    <lastmod>2021-08-17T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://Wayne-cpp.github.io/blog/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/</loc>
+    <lastmod>2021-08-17T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://Wayne-cpp.github.io/blog/tags/%E5%88%86%E9%85%8D%E5%99%A8/</loc>
+    <lastmod>2021-08-17T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://Wayne-cpp.github.io/blog/posts/cpp-stl-functor/</loc>
+    <lastmod>2021-08-16T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://Wayne-cpp.github.io/blog/tags/functor/</loc>
+    <lastmod>2021-08-16T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://Wayne-cpp.github.io/blog/tags/operator/</loc>
+    <lastmod>2021-08-16T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://Wayne-cpp.github.io/blog/tags/%E5%87%BD%E6%95%B0%E5%AF%B9%E8%B1%A1/</loc>
+    <lastmod>2021-08-16T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://Wayne-cpp.github.io/blog/posts/cpp-stl-algorithms/</loc>
     <lastmod>2021-08-15T10:00:00+08:00</lastmod>
   </url><url>
     <loc>https://Wayne-cpp.github.io/blog/tags/%E6%8E%92%E5%BA%8F/</loc>
@@ -207,9 +231,6 @@
     <lastmod>2021-07-22T10:00:00+08:00</lastmod>
   </url><url>
     <loc>https://Wayne-cpp.github.io/blog/tags/unique_ptr/</loc>
-    <lastmod>2021-07-22T10:00:00+08:00</lastmod>
-  </url><url>
-    <loc>https://Wayne-cpp.github.io/blog/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/</loc>
     <lastmod>2021-07-22T10:00:00+08:00</lastmod>
   </url><url>
     <loc>https://Wayne-cpp.github.io/blog/tags/%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/</loc>

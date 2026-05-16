@@ -1,0 +1,707 @@
+<!doctype html><html lang=en dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>C++ 分配器（Allocator）：STL 容器的内存管理抽象 | Wayne Blog</title><meta name=keywords content="C++,STL,分配器,Allocator,内存管理"><meta name=description content="深入剖析 C++ 分配器的设计哲学与实现机制。从默认的 std::allocator 出发，讲清楚 allocate/deallocate、construct/destroy 的演进，以及如何自定义分配器实现内存池、arena 分配等高性能策略。"><meta name=author content="Wayne"><link rel=canonical href=https://Wayne-cpp.github.io/blog/posts/cpp-stl-allocator/><link crossorigin=anonymous href=/blog/assets/css/stylesheet.7f93fa3f90560a8fdcdb9a52d5db8438c1e745b2d099d8f2d6d4cc1439ca8dbc.css integrity="sha256-f5P6P5BWCo/c25pS1duEOMHnRbLQmdjy1tTMFDnKjbw=" rel="preload stylesheet" as=style><link rel=icon href=https://Wayne-cpp.github.io/blog/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://Wayne-cpp.github.io/blog/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://Wayne-cpp.github.io/blog/favicon-32x32.png><link rel=apple-touch-icon href=https://Wayne-cpp.github.io/blog/apple-touch-icon.png><link rel=mask-icon href=https://Wayne-cpp.github.io/blog/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=en href=https://Wayne-cpp.github.io/blog/posts/cpp-stl-allocator/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://Wayne-cpp.github.io/blog/posts/cpp-stl-allocator/"><meta property="og:site_name" content="Wayne Blog"><meta property="og:title" content="C++ 分配器（Allocator）：STL 容器的内存管理抽象"><meta property="og:description" content="深入剖析 C++ 分配器的设计哲学与实现机制。从默认的 std::allocator 出发，讲清楚 allocate/deallocate、construct/destroy 的演进，以及如何自定义分配器实现内存池、arena 分配等高性能策略。"><meta property="og:locale" content="en"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2021-08-17T10:00:00+08:00"><meta property="article:modified_time" content="2021-08-17T10:00:00+08:00"><meta property="article:tag" content="C++"><meta property="article:tag" content="STL"><meta property="article:tag" content="分配器"><meta property="article:tag" content="Allocator"><meta property="article:tag" content="内存管理"><meta property="og:image" content="https://Wayne-cpp.github.io/blog/papermod-cover.png"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://Wayne-cpp.github.io/blog/papermod-cover.png"><meta name=twitter:title content="C++ 分配器（Allocator）：STL 容器的内存管理抽象"><meta name=twitter:description content="深入剖析 C++ 分配器的设计哲学与实现机制。从默认的 std::allocator 出发，讲清楚 allocate/deallocate、construct/destroy 的演进，以及如何自定义分配器实现内存池、arena 分配等高性能策略。"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Posts","item":"https://Wayne-cpp.github.io/blog/posts/"},{"@type":"ListItem","position":2,"name":"C++ 分配器（Allocator）：STL 容器的内存管理抽象","item":"https://Wayne-cpp.github.io/blog/posts/cpp-stl-allocator/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"C++ 分配器（Allocator）：STL 容器的内存管理抽象","name":"C\u002b\u002b 分配器（Allocator）：STL 容器的内存管理抽象","description":"深入剖析 C++ 分配器的设计哲学与实现机制。从默认的 std::allocator 出发，讲清楚 allocate/deallocate、construct/destroy 的演进，以及如何自定义分配器实现内存池、arena 分配等高性能策略。","keywords":["C++","STL","分配器","Allocator","内存管理"],"articleBody":"STL 容器之所以能灵活地管理各种数据结构，背后有一层关键抽象：allocator（分配器）。它把\"从哪搞到内存\"和\"怎么在这块内存上构造对象\"这两件事从容器逻辑里彻底剥离出来。大多数人日常写代码用不上自定义分配器，但理解它的设计，能让你在性能敏感场景下拥有真正的控制力。\n这篇文章会从 std::allocator 的基本模型开始，逐步拆解分配器的接口要求、C++11/17 的演进，最后动手写两个自定义分配器。\n为什么要把内存管理抽象出来 假设你在写一个 vector。你需要：申请一块连续内存、在上面构造对象、析构对象、释放内存。前两步和后两步做的事情性质完全不同。申请/释放内存是系统级操作（调用 malloc 或 operator new），而构造/析构是语言级操作（调用构造函数和析构函数）。\n如果把 new T[args...] 直接硬编码在容器里，你就没法控制内存来源。游戏引擎可能想从一个预分配的大块内存里切分，嵌入式系统可能根本没有堆。分配器的存在，让容器不用关心这些细节。\n换个角度说，分配器是一种策略（strategy）模式。容器负责数据结构的逻辑（插入、删除、遍历），分配器负责内存策略（从哪分配、怎么回收）。两者通过模板参数组合在一起。\nstd::allocator 的基本模型 std::allocator 是标准库提供的默认分配器。它做的事情很简单：把 C++ 的 operator new 和 operator delete 包装成一个类型安全的接口。\ntemplate \u003ctypename T\u003e class allocator { public: using value_type = T; // Allocate raw memory for n objects of type T // Does NOT call constructors T* allocate(std::size_t n); // Deallocate memory previously allocated by allocate() // Does NOT call destructors void deallocate(T* p, std::size_t n); // Construct an object at location p using args // (Deprecated in C++17, removed in C++20) template \u003ctypename U, typename... Args\u003e void construct(U* p, Args\u0026\u0026... args); // Destroy the object at p (call its destructor) // (Deprecated in C++17, removed in C++20) template \u003ctypename U\u003e void destroy(U* p); }; 四个操作，职责分明：\n操作 做的事 不做的事 allocate 分配原始内存（不调用构造函数） 不构造对象 deallocate 释放原始内存 不调用析构函数 construct 在已分配的内存上构造对象 不分配内存 destroy 析构对象 不释放内存 规则：allocate 只管生肉（原始内存），construct 才是把肉做熟（调用构造函数）。两者必须分开调用。\n看一个最基本的使用示例：\n#include #include void BasicAllocatorUsage() { std::allocator\u003cstd::string\u003e alloc; // Step 1: allocate raw memory for 3 strings std::string* p = alloc.allocate(3); // Step 2: construct objects in that memory std::allocator_traits\u003cdecltype(alloc)\u003e::construct(alloc, p, \"hello\"); std::allocator_traits\u003cdecltype(alloc)\u003e::construct(alloc, p + 1, \"world\"); std::allocator_traits\u003cdecltype(alloc)\u003e::construct(alloc, p + 2, \"!\"); // Use the strings for (int i = 0; i \u003c 3; ++i) { // prints: hello world ! } // Step 3: destroy objects for (int i = 0; i \u003c 3; ++i) { std::allocator_traits\u003cdecltype(alloc)\u003e::destroy(alloc, p + i); } // Step 4: deallocate raw memory alloc.deallocate(p, 3); } 注意这里用了 std::allocator_traits 来调用 construct 和 destroy。C++11 之后，这是推荐做法，后面会解释原因。\n容器如何使用分配器 每个 STL 容器的模板参数列表里，都有一个可选的分配器参数：\nnamespace std { template \u003ctypename T, typename Allocator = allocator\u003cT\u003e\u003e class vector; template \u003ctypename T, typename Allocator = allocator\u003cT\u003e\u003e class list; template \u003ctypename Key, typename T, typename Compare = less\u003cKey\u003e, typename Allocator = allocator\u003cpair\u003cconst Key, T\u003e\u003e\u003e class map; } 容器内部持有分配器的一份拷贝（或者通过 EBO，Empty Base Optimization，不占空间）。当容器需要分配内存时，它调用分配器的 allocate。当需要在已分配内存上构造元素时，它调用 construct（C++11 之后通过 allocator_traits）。\n#include #include #include #include // Default: uses std::allocator std::vector\u003cint\u003e v1; // Custom allocator as second parameter std::vector\u003cint, MyAllocator\u003cint\u003e\u003e v2; // map's allocator works on pair std::map\u003cint, std::string, std::less\u003cint\u003e, MyAllocator\u003cstd::pair\u003cconst int, std::string\u003e\u003e\u003e m; 注意：map 的分配器类型是 allocator","wordCount":"2798","inLanguage":"en","image":"https://Wayne-cpp.github.io/blog/papermod-cover.png","datePublished":"2021-08-17T10:00:00+08:00","dateModified":"2021-08-17T10:00:00+08:00","author":{"@type":"Person","name":"Wayne"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://Wayne-cpp.github.io/blog/posts/cpp-stl-allocator/"},"publisher":{"@type":"Organization","name":"Wayne Blog","logo":{"@type":"ImageObject","url":"https://Wayne-cpp.github.io/blog/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=header-nav><div class=logo><a href=https://Wayne-cpp.github.io/blog/ accesskey=h title="Wayne Blog (Alt + H)">Wayne Blog</a><div class=logo-switches><button id=theme-toggle class=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg class="moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg class="sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu class=menu><li><a href=https://Wayne-cpp.github.io/blog/archives title=Archive><span>Archive</span></a></li><li><a href=https://Wayne-cpp.github.io/blog/categories/ title=Categories><span>Categories</span></a></li><li><a href=https://Wayne-cpp.github.io/blog/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li><li><a href=https://Wayne-cpp.github.io/blog/tags/ title=Tags><span>Tags</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><nav class=breadcrumbs role=navigation aria-label=Breadcrumb><a href=/blog/>Home</a>
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"/></svg>
+<a href=/blog/posts/>Posts</a>
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"/></svg></nav><h1 class="post-title entry-hint-parent">C++ 分配器（Allocator）：STL 容器的内存管理抽象</h1><div class=post-meta><span title='2021-08-17 10:00:00 +0800 +0800'>August 17, 2021</span>&nbsp;·&nbsp;<span>14 min</span>&nbsp;·&nbsp;<span>Wayne</span></div></header><details class=toc><summary accesskey=c title="(Alt + C)"><span class=title>Table of Contents</span></summary><div class=inner><ul><li><a href=#%e4%b8%ba%e4%bb%80%e4%b9%88%e8%a6%81%e6%8a%8a%e5%86%85%e5%ad%98%e7%ae%a1%e7%90%86%e6%8a%bd%e8%b1%a1%e5%87%ba%e6%9d%a5 aria-label=为什么要把内存管理抽象出来>为什么要把内存管理抽象出来</a></li><li><a href=#stdallocator-%e7%9a%84%e5%9f%ba%e6%9c%ac%e6%a8%a1%e5%9e%8b aria-label="std::allocator 的基本模型">std::allocator 的基本模型</a></li><li><a href=#%e5%ae%b9%e5%99%a8%e5%a6%82%e4%bd%95%e4%bd%bf%e7%94%a8%e5%88%86%e9%85%8d%e5%99%a8 aria-label=容器如何使用分配器>容器如何使用分配器</a></li><li><a href=#c11-%e7%9a%84%e9%87%8d%e5%a4%a7%e5%8f%98%e5%8c%96stdallocator_traits aria-label="C++11 的重大变化：std::allocator_traits">C++11 的重大变化：std::allocator_traits</a><ul><li><a href=#%e9%97%ae%e9%a2%98%e5%9c%a8%e5%93%aa aria-label=问题在哪>问题在哪</a></li><li><a href=#allocator_traits-%e7%9a%84%e8%a7%a3%e5%86%b3%e6%96%b9%e6%a1%88 aria-label="allocator_traits 的解决方案">allocator_traits 的解决方案</a></li><li><a href=#%e4%b8%ba%e4%bb%80%e4%b9%88%e8%bf%99%e6%a0%b7%e5%81%9a aria-label=为什么这样做>为什么这样做</a></li></ul></li><li><a href=#%e8%87%aa%e5%ae%9a%e4%b9%89%e5%88%86%e9%85%8d%e5%99%a8%e7%9a%84%e6%9c%80%e4%bd%8e%e8%a6%81%e6%b1%82 aria-label=自定义分配器的最低要求>自定义分配器的最低要求</a><ul><li><a href=#%e5%8f%af%e9%80%89%e7%9a%84%e9%ab%98%e7%ba%a7%e6%8e%a5%e5%8f%a3 aria-label=可选的高级接口>可选的高级接口</a></li></ul></li><li><a href=#%e5%ae%9e%e6%88%98%e4%b8%80arena%e6%a0%88%e5%bc%8f%e5%88%86%e9%85%8d%e5%99%a8 aria-label=实战一：Arena（栈式）分配器>实战一：Arena（栈式）分配器</a></li><li><a href=#%e5%ae%9e%e6%88%98%e4%ba%8c%e5%9b%ba%e5%ae%9a%e5%a4%a7%e5%b0%8f%e5%86%85%e5%ad%98%e6%b1%a0%e5%88%86%e9%85%8d%e5%99%a8 aria-label=实战二：固定大小内存池分配器>实战二：固定大小内存池分配器</a></li><li><a href=#%e4%bb%80%e4%b9%88%e6%97%b6%e5%80%99%e8%af%a5%e5%86%99%e8%87%aa%e5%ae%9a%e4%b9%89%e5%88%86%e9%85%8d%e5%99%a8 aria-label=什么时候该写自定义分配器>什么时候该写自定义分配器</a></li><li><a href=#%e6%9c%89%e7%8a%b6%e6%80%81%e5%88%86%e9%85%8d%e5%99%a8%e4%b8%8e%e5%ae%b9%e5%99%a8%e8%af%ad%e4%b9%89 aria-label=有状态分配器与容器语义>有状态分配器与容器语义</a><ul><li><a href=#%e6%a0%b8%e5%bf%83%e9%97%ae%e9%a2%98 aria-label=核心问题>核心问题</a></li><li><a href=#%e4%b8%89%e7%a7%8d-propagate-%e6%a0%87%e5%bf%97 aria-label="三种 propagate 标志">三种 propagate 标志</a></li><li><a href=#%e9%80%89%e6%8b%a9%e7%ad%96%e7%95%a5 aria-label=选择策略>选择策略</a></li></ul></li><li><a href=#c17-%e7%9a%84-pmr%e5%a4%9a%e6%80%81%e5%86%85%e5%ad%98%e8%b5%84%e6%ba%90 aria-label="C++17 的 PMR：多态内存资源">C++17 的 PMR：多态内存资源</a><ul><li><a href=#%e6%a0%b8%e5%bf%83%e7%b1%bb%e5%9e%8b aria-label=核心类型>核心类型</a></li><li><a href=#%e4%b8%89%e7%a7%8d%e6%a0%87%e5%87%86%e5%86%85%e5%ad%98%e8%b5%84%e6%ba%90 aria-label=三种标准内存资源>三种标准内存资源</a><ul><li><a href=#monotonic_buffer_resource aria-label=monotonic_buffer_resource>monotonic_buffer_resource</a></li><li><a href=#unsynchronized_pool_resource aria-label=unsynchronized_pool_resource>unsynchronized_pool_resource</a></li><li><a href=#synchronized_pool_resource aria-label=synchronized_pool_resource>synchronized_pool_resource</a></li></ul></li><li><a href=#pool_options aria-label=pool_options>pool_options</a></li><li><a href=#%e8%87%aa%e5%ae%9a%e4%b9%89-memory_resource aria-label="自定义 memory_resource">自定义 memory_resource</a></li></ul></li><li><a href=#%e6%80%a7%e8%83%bd%e5%af%b9%e6%af%94 aria-label=性能对比>性能对比</a></li><li><a href=#%e5%ae%9e%e8%b7%b5%e5%bb%ba%e8%ae%ae aria-label=实践建议>实践建议</a></li></ul></div></details><div class="post-content md-content"><p>STL 容器之所以能灵活地管理各种数据结构，背后有一层关键抽象：<strong>allocator</strong>（分配器）。它把"从哪搞到内存"和"怎么在这块内存上构造对象"这两件事从容器逻辑里彻底剥离出来。大多数人日常写代码用不上自定义分配器，但理解它的设计，能让你在性能敏感场景下拥有真正的控制力。</p><p>这篇文章会从 <code>std::allocator</code> 的基本模型开始，逐步拆解分配器的接口要求、C++11/17 的演进，最后动手写两个自定义分配器。</p><h2 id=为什么要把内存管理抽象出来>为什么要把内存管理抽象出来<a hidden class=anchor aria-hidden=true href=#为什么要把内存管理抽象出来>#</a></h2><p>假设你在写一个 <code>vector</code>。你需要：申请一块连续内存、在上面构造对象、析构对象、释放内存。前两步和后两步做的事情性质完全不同。申请/释放内存是系统级操作（调用 <code>malloc</code> 或 <code>operator new</code>），而构造/析构是语言级操作（调用构造函数和析构函数）。</p><p>如果把 <code>new T[args...]</code> 直接硬编码在容器里，你就没法控制内存来源。游戏引擎可能想从一个预分配的大块内存里切分，嵌入式系统可能根本没有堆。分配器的存在，让容器不用关心这些细节。</p><p>换个角度说，分配器是一种<strong>策略（strategy）模式</strong>。容器负责数据结构的逻辑（插入、删除、遍历），分配器负责内存策略（从哪分配、怎么回收）。两者通过模板参数组合在一起。</p><h2 id=stdallocator-的基本模型>std::allocator 的基本模型<a hidden class=anchor aria-hidden=true href=#stdallocator-的基本模型>#</a></h2><p><code>std::allocator&lt;T></code> 是标准库提供的默认分配器。它做的事情很简单：把 C++ 的 <code>operator new</code> 和 <code>operator delete</code> 包装成一个类型安全的接口。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#66d9ef>template</span> <span style=color:#f92672>&lt;</span><span style=color:#66d9ef>typename</span> T<span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>allocator</span> {
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> value_type <span style=color:#f92672>=</span> T;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Allocate raw memory for n objects of type T
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>// Does NOT call constructors
+</span></span></span><span style=display:flex><span>    T<span style=color:#f92672>*</span> <span style=color:#a6e22e>allocate</span>(std<span style=color:#f92672>::</span>size_t n);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Deallocate memory previously allocated by allocate()
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>// Does NOT call destructors
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>deallocate</span>(T<span style=color:#f92672>*</span> p, std<span style=color:#f92672>::</span>size_t n);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Construct an object at location p using args
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>// (Deprecated in C++17, removed in C++20)
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>template</span> <span style=color:#f92672>&lt;</span><span style=color:#66d9ef>typename</span> U, <span style=color:#66d9ef>typename</span>... Args<span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> construct(U<span style=color:#f92672>*</span> p, Args<span style=color:#f92672>&amp;&amp;</span>... args);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Destroy the object at p (call its destructor)
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>// (Deprecated in C++17, removed in C++20)
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>template</span> <span style=color:#f92672>&lt;</span><span style=color:#66d9ef>typename</span> U<span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> destroy(U<span style=color:#f92672>*</span> p);
+</span></span><span style=display:flex><span>};
+</span></span></code></pre></div><p>四个操作，职责分明：</p><table><thead><tr><th>操作</th><th>做的事</th><th>不做的事</th></tr></thead><tbody><tr><td><code>allocate</code></td><td>分配原始内存（不调用构造函数）</td><td>不构造对象</td></tr><tr><td><code>deallocate</code></td><td>释放原始内存</td><td>不调用析构函数</td></tr><tr><td><code>construct</code></td><td>在已分配的内存上构造对象</td><td>不分配内存</td></tr><tr><td><code>destroy</code></td><td>析构对象</td><td>不释放内存</td></tr></tbody></table><blockquote><p><strong>规则</strong>：<code>allocate</code> 只管生肉（原始内存），<code>construct</code> 才是把肉做熟（调用构造函数）。两者必须分开调用。</p></blockquote><p>看一个最基本的使用示例：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;memory&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;string&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>BasicAllocatorUsage</span>() {
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>allocator<span style=color:#f92672>&lt;</span>std<span style=color:#f92672>::</span>string<span style=color:#f92672>&gt;</span> alloc;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Step 1: allocate raw memory for 3 strings
+</span></span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>string<span style=color:#f92672>*</span> p <span style=color:#f92672>=</span> alloc.allocate(<span style=color:#ae81ff>3</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Step 2: construct objects in that memory
+</span></span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>allocator_traits<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>decltype</span>(alloc)<span style=color:#f92672>&gt;::</span>construct(alloc, p, <span style=color:#e6db74>&#34;hello&#34;</span>);
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>allocator_traits<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>decltype</span>(alloc)<span style=color:#f92672>&gt;::</span>construct(alloc, p <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>, <span style=color:#e6db74>&#34;world&#34;</span>);
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>allocator_traits<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>decltype</span>(alloc)<span style=color:#f92672>&gt;::</span>construct(alloc, p <span style=color:#f92672>+</span> <span style=color:#ae81ff>2</span>, <span style=color:#e6db74>&#34;!&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Use the strings
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>3</span>; <span style=color:#f92672>++</span>i) {
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// prints: hello world !
+</span></span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Step 3: destroy objects
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>3</span>; <span style=color:#f92672>++</span>i) {
+</span></span><span style=display:flex><span>        std<span style=color:#f92672>::</span>allocator_traits<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>decltype</span>(alloc)<span style=color:#f92672>&gt;::</span>destroy(alloc, p <span style=color:#f92672>+</span> i);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Step 4: deallocate raw memory
+</span></span></span><span style=display:flex><span>    alloc.deallocate(p, <span style=color:#ae81ff>3</span>);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>注意这里用了 <code>std::allocator_traits</code> 来调用 <code>construct</code> 和 <code>destroy</code>。C++11 之后，这是推荐做法，后面会解释原因。</p><h2 id=容器如何使用分配器>容器如何使用分配器<a hidden class=anchor aria-hidden=true href=#容器如何使用分配器>#</a></h2><p>每个 STL 容器的模板参数列表里，都有一个可选的分配器参数：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#66d9ef>namespace</span> std {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>template</span> <span style=color:#f92672>&lt;</span><span style=color:#66d9ef>typename</span> T, <span style=color:#66d9ef>typename</span> Allocator <span style=color:#f92672>=</span> allocator<span style=color:#f92672>&lt;</span>T<span style=color:#f92672>&gt;&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>vector</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>template</span> <span style=color:#f92672>&lt;</span><span style=color:#66d9ef>typename</span> T, <span style=color:#66d9ef>typename</span> Allocator <span style=color:#f92672>=</span> allocator<span style=color:#f92672>&lt;</span>T<span style=color:#f92672>&gt;&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>list</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>template</span> <span style=color:#f92672>&lt;</span><span style=color:#66d9ef>typename</span> Key, <span style=color:#66d9ef>typename</span> T, <span style=color:#66d9ef>typename</span> Compare <span style=color:#f92672>=</span> less<span style=color:#f92672>&lt;</span>Key<span style=color:#f92672>&gt;</span>,
+</span></span><span style=display:flex><span>              <span style=color:#66d9ef>typename</span> Allocator <span style=color:#f92672>=</span> allocator<span style=color:#f92672>&lt;</span>pair<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>const</span> Key, T<span style=color:#f92672>&gt;&gt;&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>map</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>容器内部持有分配器的一份拷贝（或者通过 EBO，Empty Base Optimization，不占空间）。当容器需要分配内存时，它调用分配器的 <code>allocate</code>。当需要在已分配内存上构造元素时，它调用 <code>construct</code>（C++11 之后通过 <code>allocator_traits</code>）。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;vector&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;list&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;map&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;memory&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// Default: uses std::allocator&lt;int&gt;
+</span></span></span><span style=display:flex><span>std<span style=color:#f92672>::</span>vector<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span><span style=color:#f92672>&gt;</span> v1;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// Custom allocator as second parameter
+</span></span></span><span style=display:flex><span>std<span style=color:#f92672>::</span>vector<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span>, MyAllocator<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span><span style=color:#f92672>&gt;&gt;</span> v2;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// map&#39;s allocator works on pair&lt;const Key, T&gt;
+</span></span></span><span style=display:flex><span>std<span style=color:#f92672>::</span>map<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span>, std<span style=color:#f92672>::</span>string, std<span style=color:#f92672>::</span>less<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span><span style=color:#f92672>&gt;</span>,
+</span></span><span style=display:flex><span>         MyAllocator<span style=color:#f92672>&lt;</span>std<span style=color:#f92672>::</span>pair<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span>, std<span style=color:#f92672>::</span>string<span style=color:#f92672>&gt;&gt;&gt;</span> m;
+</span></span></code></pre></div><blockquote><p><strong>注意</strong>：<code>map</code> 的分配器类型是 <code>allocator&lt;pair&lt;const Key, T>></code>，不是 <code>allocator&lt;Key></code>。因为 map 内部存储的节点包含完整的键值对。</p></blockquote><p>容器通过 <code>get_allocator()</code> 成员函数暴露内部使用的分配器：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span>std<span style=color:#f92672>::</span>vector<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span><span style=color:#f92672>&gt;</span> vec;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>auto</span> alloc <span style=color:#f92672>=</span> vec.get_allocator();  <span style=color:#75715e>// returns std::allocator&lt;int&gt;
+</span></span></span></code></pre></div><h2 id=c11-的重大变化stdallocator_traits>C++11 的重大变化：std::allocator_traits<a hidden class=anchor aria-hidden=true href=#c11-的重大变化stdallocator_traits>#</a></h2><p>C++11 引入了 <code>std::allocator_traits</code>，这是分配器机制演进中最重要的一步。</p><h3 id=问题在哪>问题在哪<a hidden class=anchor aria-hidden=true href=#问题在哪>#</a></h3><p>在 C++11 之前，如果你想写一个自定义分配器，你必须提供一大堆类型别名和成员函数：<code>pointer</code>、<code>const_pointer</code>、<code>reference</code>、<code>const_reference</code>、<code>rebind</code>、<code>construct</code>、<code>destroy</code>、<code>max_size</code>、<code>address</code>……其中很多都是机械重复的代码。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>// Pre-C++11: a custom allocator had to provide ALL of these
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>template</span> <span style=color:#f92672>&lt;</span><span style=color:#66d9ef>typename</span> T<span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>OldAllocator</span> {
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> value_type <span style=color:#f92672>=</span> T;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> pointer <span style=color:#f92672>=</span> T<span style=color:#f92672>*</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> const_pointer <span style=color:#f92672>=</span> <span style=color:#66d9ef>const</span> T<span style=color:#f92672>*</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> reference <span style=color:#f92672>=</span> T<span style=color:#f92672>&amp;</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> const_reference <span style=color:#f92672>=</span> <span style=color:#66d9ef>const</span> T<span style=color:#f92672>&amp;</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> size_type <span style=color:#f92672>=</span> std<span style=color:#f92672>::</span>size_t;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> difference_type <span style=color:#f92672>=</span> std<span style=color:#f92672>::</span>ptrdiff_t;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>template</span> <span style=color:#f92672>&lt;</span><span style=color:#66d9ef>typename</span> U<span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>rebind</span> { <span style=color:#66d9ef>using</span> other <span style=color:#f92672>=</span> OldAllocator<span style=color:#f92672>&lt;</span>U<span style=color:#f92672>&gt;</span>; };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    pointer <span style=color:#a6e22e>address</span>(reference x) <span style=color:#66d9ef>const</span> { <span style=color:#66d9ef>return</span> <span style=color:#f92672>&amp;</span>x; }
+</span></span><span style=display:flex><span>    const_pointer <span style=color:#a6e22e>address</span>(const_reference x) <span style=color:#66d9ef>const</span> { <span style=color:#66d9ef>return</span> <span style=color:#f92672>&amp;</span>x; }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    pointer <span style=color:#a6e22e>allocate</span>(size_type n, <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>void</span><span style=color:#f92672>*</span> hint <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>static_cast</span><span style=color:#f92672>&lt;</span>pointer<span style=color:#f92672>&gt;</span>(<span style=color:#f92672>::</span><span style=color:#66d9ef>operator</span> <span style=color:#66d9ef>new</span>(n <span style=color:#f92672>*</span> <span style=color:#66d9ef>sizeof</span>(T)));
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>deallocate</span>(pointer p, size_type n) {
+</span></span><span style=display:flex><span>        <span style=color:#f92672>::</span><span style=color:#66d9ef>operator</span> <span style=color:#66d9ef>delete</span>(p);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    size_type <span style=color:#a6e22e>max_size</span>() <span style=color:#66d9ef>const</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> std<span style=color:#f92672>::</span>numeric_limits<span style=color:#f92672>&lt;</span>size_type<span style=color:#f92672>&gt;::</span>max() <span style=color:#f92672>/</span> <span style=color:#66d9ef>sizeof</span>(T);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>construct</span>(pointer p, <span style=color:#66d9ef>const</span> T<span style=color:#f92672>&amp;</span> val) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>new</span> (p) T(val);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>destroy</span>(pointer p) {
+</span></span><span style=display:flex><span>        p<span style=color:#f92672>-&gt;~</span>T();
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>};
+</span></span></code></pre></div><h3 id=allocator_traits-的解决方案>allocator_traits 的解决方案<a hidden class=anchor aria-hidden=true href=#allocator_traits-的解决方案>#</a></h3><p><code>std::allocator_traits</code> 充当一层中间件。容器不再直接调用分配器的成员函数，而是通过 traits 间接调用。Traits 提供了合理的默认实现，自定义分配器只需要提供最核心的部分。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#66d9ef>template</span> <span style=color:#f92672>&lt;</span><span style=color:#66d9ef>typename</span> Alloc<span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>allocator_traits</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> allocator_type <span style=color:#f92672>=</span> Alloc;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> value_type <span style=color:#f92672>=</span> <span style=color:#66d9ef>typename</span> Alloc<span style=color:#f92672>::</span>value_type;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// pointer defaults to value_type*
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> pointer <span style=color:#f92672>=</span> <span style=color:#66d9ef>typename</span> Alloc<span style=color:#f92672>::</span>pointer;  <span style=color:#75715e>// or value_type* if missing
+</span></span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// size_type defaults to std::size_t
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> size_type <span style=color:#f92672>=</span> <span style=color:#66d9ef>typename</span> Alloc<span style=color:#f92672>::</span>size_type;  <span style=color:#75715e>// or std::size_t if missing
+</span></span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// allocate: forwards to alloc.allocate(n)
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>static</span> pointer <span style=color:#a6e22e>allocate</span>(Alloc<span style=color:#f92672>&amp;</span> a, size_type n);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// deallocate: forwards to alloc.deallocate(p, n)
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>deallocate</span>(Alloc<span style=color:#f92672>&amp;</span> a, pointer p, size_type n);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// construct: uses alloc.construct if available,
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>// otherwise falls back to ::new (p) T(args...)
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>template</span> <span style=color:#f92672>&lt;</span><span style=color:#66d9ef>typename</span> T, <span style=color:#66d9ef>typename</span>... Args<span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> construct(Alloc<span style=color:#f92672>&amp;</span> a, T<span style=color:#f92672>*</span> p, Args<span style=color:#f92672>&amp;&amp;</span>... args);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// destroy: uses alloc.destroy if available,
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>// otherwise falls back to p-&gt;~T()
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>template</span> <span style=color:#f92672>&lt;</span><span style=color:#66d9ef>typename</span> T<span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> destroy(Alloc<span style=color:#f92672>&amp;</span> a, T<span style=color:#f92672>*</span> p);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// select_on_container_copy_construction
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>static</span> Alloc <span style=color:#a6e22e>select_on_container_copy_construction</span>(<span style=color:#66d9ef>const</span> Alloc<span style=color:#f92672>&amp;</span> a);
+</span></span><span style=display:flex><span>};
+</span></span></code></pre></div><h3 id=为什么这样做>为什么这样做<a hidden class=anchor aria-hidden=true href=#为什么这样做>#</a></h3><ol><li><strong>减少样板代码</strong>：自定义分配器只需提供 <code>value_type</code>、<code>allocate</code>、<code>deallocate</code>，其他全部由 traits 提供默认值</li><li><strong>向后兼容</strong>：如果分配器提供了自己的 <code>construct</code>/<code>destroy</code>，traits 会优先使用</li><li><strong>为未来留空间</strong>：标准库可以在 traits 里添加新功能，不需要改动现有的分配器实现</li></ol><h2 id=自定义分配器的最低要求>自定义分配器的最低要求<a hidden class=anchor aria-hidden=true href=#自定义分配器的最低要求>#</a></h2><p>有了 <code>allocator_traits</code> 之后，一个合法的 C++11 分配器只需要提供以下内容：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#66d9ef>template</span> <span style=color:#f92672>&lt;</span><span style=color:#66d9ef>typename</span> T<span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>MinimalAllocator</span> {
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> value_type <span style=color:#f92672>=</span> T;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Required: default constructor
+</span></span></span><span style=display:flex><span>    MinimalAllocator() <span style=color:#66d9ef>noexcept</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>default</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Required: rebind constructor
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>template</span> <span style=color:#f92672>&lt;</span><span style=color:#66d9ef>typename</span> U<span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>    MinimalAllocator(<span style=color:#66d9ef>const</span> MinimalAllocator<span style=color:#f92672>&lt;</span>U<span style=color:#f92672>&gt;&amp;</span>) <span style=color:#66d9ef>noexcept</span> {}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Required: allocate memory for n objects
+</span></span></span><span style=display:flex><span>    T<span style=color:#f92672>*</span> <span style=color:#a6e22e>allocate</span>(std<span style=color:#f92672>::</span>size_t n) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>static_cast</span><span style=color:#f92672>&lt;</span>T<span style=color:#f92672>*&gt;</span>(<span style=color:#f92672>::</span><span style=color:#66d9ef>operator</span> <span style=color:#66d9ef>new</span>(n <span style=color:#f92672>*</span> <span style=color:#66d9ef>sizeof</span>(T)));
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Required: deallocate memory
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>deallocate</span>(T<span style=color:#f92672>*</span> p, std<span style=color:#f92672>::</span>size_t n) <span style=color:#66d9ef>noexcept</span> {
+</span></span><span style=display:flex><span>        <span style=color:#f92672>::</span><span style=color:#66d9ef>operator</span> <span style=color:#66d9ef>delete</span>(p);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Required: equality operators
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>bool</span> <span style=color:#66d9ef>operator</span><span style=color:#f92672>==</span>(<span style=color:#66d9ef>const</span> MinimalAllocator<span style=color:#f92672>&amp;</span>) <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>noexcept</span> { <span style=color:#66d9ef>return</span> true; }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>bool</span> <span style=color:#66d9ef>operator</span><span style=color:#f92672>!=</span>(<span style=color:#66d9ef>const</span> MinimalAllocator<span style=color:#f92672>&amp;</span>) <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>noexcept</span> { <span style=color:#66d9ef>return</span> false; }
+</span></span><span style=display:flex><span>};
+</span></span></code></pre></div><p>就这么简单。<code>construct</code>、<code>destroy</code>、<code>max_size</code>、<code>address</code> 全部由 <code>allocator_traits</code> 提供默认实现。</p><h3 id=可选的高级接口>可选的高级接口<a hidden class=anchor aria-hidden=true href=#可选的高级接口>#</a></h3><p>如果你的分配器有状态（stateful），或者需要控制容器复制时的行为，你可以提供以下可选接口：</p><table><thead><tr><th>接口</th><th>作用</th></tr></thead><tbody><tr><td><code>construct(p, args...)</code></td><td>自定义构造方式，traits 会优先调用它</td></tr><tr><td><code>destroy(p)</code></td><td>自定义析构方式，traits 会优先调用它</td></tr><tr><td><code>select_on_container_copy_construction()</code></td><td>容器拷贝构造时，返回给新容器的分配器实例</td></tr><tr><td><code>propagate_on_container_copy_assignment</code></td><td>容器拷贝赋值时，是否连带赋值分配器</td></tr><tr><td><code>propagate_on_container_move_assignment</code></td><td>容器移动赋值时，是否连带赋值分配器</td></tr><tr><td><code>propagate_on_container_swap</code></td><td>容器 swap 时，是否交换分配器</td></tr><tr><td><code>is_always_equal</code></td><td>声明分配器是否总是相等（无状态分配器可以设为 <code>true_type</code>）</td></tr></tbody></table><p>这些可选接口都是通过在分配器里定义嵌套的 <code>using</code> 别名来启用的：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#66d9ef>template</span> <span style=color:#f92672>&lt;</span><span style=color:#66d9ef>typename</span> T<span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>StatefulAllocator</span> {
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> value_type <span style=color:#f92672>=</span> T;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Tell containers: when I&#39;m copy-assigned, propagate me too
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> propagate_on_container_copy_assignment <span style=color:#f92672>=</span> std<span style=color:#f92672>::</span>true_type;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Tell containers: when I&#39;m move-assigned, propagate me too
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> propagate_on_container_move_assignment <span style=color:#f92672>=</span> std<span style=color:#f92672>::</span>true_type;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Tell containers: swap allocators when containers are swapped
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> propagate_on_container_swap <span style=color:#f92672>=</span> std<span style=color:#f92672>::</span>true_type;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Tell containers: I&#39;m never equal to another instance
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>// (because I own different memory pools)
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> is_always_equal <span style=color:#f92672>=</span> std<span style=color:#f92672>::</span>false_type;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// ... rest of implementation
+</span></span></span><span style=display:flex><span>};
+</span></span></code></pre></div><h2 id=实战一arena栈式分配器>实战一：Arena（栈式）分配器<a hidden class=anchor aria-hidden=true href=#实战一arena栈式分配器>#</a></h2><p>Arena 分配器（也叫 stack allocator 或 bump allocator）是最简单的自定义分配器之一。它从一个预分配的连续内存块中依次分配，只增不减。释放操作在析构时一次性回收整个 arena。</p><p>这种分配器适用于生命周期明确的批量操作，比如一帧之内的大量临时分配。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstddef&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdlib&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;memory&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;new&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cassert&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;algorithm&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;vector&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;iostream&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// The shared arena resource: owns the raw memory buffer
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ArenaResource</span> {
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>explicit</span> ArenaResource(std<span style=color:#f92672>::</span>size_t size)
+</span></span><span style=display:flex><span>        <span style=color:#f92672>:</span> buffer_(<span style=color:#66d9ef>static_cast</span><span style=color:#f92672>&lt;</span><span style=color:#66d9ef>char</span><span style=color:#f92672>*&gt;</span>(<span style=color:#f92672>::</span><span style=color:#66d9ef>operator</span> <span style=color:#66d9ef>new</span>(size))),
+</span></span><span style=display:flex><span>          capacity_(size),
+</span></span><span style=display:flex><span>          offset_(<span style=color:#ae81ff>0</span>) {}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>~</span>ArenaResource() {
+</span></span><span style=display:flex><span>        <span style=color:#f92672>::</span><span style=color:#66d9ef>operator</span> <span style=color:#66d9ef>delete</span>(buffer_);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// No copying
+</span></span></span><span style=display:flex><span>    ArenaResource(<span style=color:#66d9ef>const</span> ArenaResource<span style=color:#f92672>&amp;</span>) <span style=color:#f92672>=</span> <span style=color:#66d9ef>delete</span>;
+</span></span><span style=display:flex><span>    ArenaResource<span style=color:#f92672>&amp;</span> <span style=color:#66d9ef>operator</span><span style=color:#f92672>=</span>(<span style=color:#66d9ef>const</span> ArenaResource<span style=color:#f92672>&amp;</span>) <span style=color:#f92672>=</span> <span style=color:#66d9ef>delete</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Allocate n bytes, bump the offset forward
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span><span style=color:#f92672>*</span> <span style=color:#a6e22e>Allocate</span>(std<span style=color:#f92672>::</span>size_t n, std<span style=color:#f92672>::</span>size_t alignment <span style=color:#f92672>=</span> <span style=color:#66d9ef>alignof</span>(std<span style=color:#f92672>::</span>max_align_t)) {
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// Align the offset
+</span></span></span><span style=display:flex><span>        std<span style=color:#f92672>::</span>size_t current <span style=color:#f92672>=</span> <span style=color:#66d9ef>reinterpret_cast</span><span style=color:#f92672>&lt;</span>std<span style=color:#f92672>::</span>size_t<span style=color:#f92672>&gt;</span>(buffer_ <span style=color:#f92672>+</span> offset_);
+</span></span><span style=display:flex><span>        std<span style=color:#f92672>::</span>size_t aligned <span style=color:#f92672>=</span> (current <span style=color:#f92672>+</span> alignment <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>) <span style=color:#f92672>&amp;</span> <span style=color:#f92672>~</span>(alignment <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>);
+</span></span><span style=display:flex><span>        std<span style=color:#f92672>::</span>size_t padding <span style=color:#f92672>=</span> aligned <span style=color:#f92672>-</span> current;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (offset_ <span style=color:#f92672>+</span> padding <span style=color:#f92672>+</span> n <span style=color:#f92672>&gt;</span> capacity_) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>throw</span> std<span style=color:#f92672>::</span>bad_alloc();
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>void</span><span style=color:#f92672>*</span> ptr <span style=color:#f92672>=</span> buffer_ <span style=color:#f92672>+</span> offset_ <span style=color:#f92672>+</span> padding;
+</span></span><span style=display:flex><span>        offset_ <span style=color:#f92672>+=</span> padding <span style=color:#f92672>+</span> n;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> ptr;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Reset the arena: all previous allocations are invalidated
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>// Objects must already be destroyed before calling this
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>Reset</span>() {
+</span></span><span style=display:flex><span>        offset_ <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>size_t Used() <span style=color:#66d9ef>const</span> { <span style=color:#66d9ef>return</span> offset_; }
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>size_t Capacity() <span style=color:#66d9ef>const</span> { <span style=color:#66d9ef>return</span> capacity_; }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>private</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>char</span><span style=color:#f92672>*</span> buffer_;
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>size_t capacity_;
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>size_t offset_;
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// The allocator type that hooks into STL containers
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>template</span> <span style=color:#f92672>&lt;</span><span style=color:#66d9ef>typename</span> T<span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ArenaAllocator</span> {
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> value_type <span style=color:#f92672>=</span> T;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// This allocator is NOT always equal to another instance
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>// because each may point to a different arena
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> is_always_equal <span style=color:#f92672>=</span> std<span style=color:#f92672>::</span>false_type;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Don&#39;t propagate on copy/move — each container keeps its arena
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> propagate_on_container_copy_assignment <span style=color:#f92672>=</span> std<span style=color:#f92672>::</span>false_type;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> propagate_on_container_move_assignment <span style=color:#f92672>=</span> std<span style=color:#f92672>::</span>false_type;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> propagate_on_container_swap <span style=color:#f92672>=</span> std<span style=color:#f92672>::</span>false_type;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>explicit</span> <span style=color:#a6e22e>ArenaAllocator</span>(ArenaResource<span style=color:#f92672>&amp;</span> resource) <span style=color:#f92672>:</span> resource_(<span style=color:#f92672>&amp;</span>resource) {}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>template</span> <span style=color:#f92672>&lt;</span><span style=color:#66d9ef>typename</span> U<span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>    ArenaAllocator(<span style=color:#66d9ef>const</span> ArenaAllocator<span style=color:#f92672>&lt;</span>U<span style=color:#f92672>&gt;&amp;</span> other) <span style=color:#66d9ef>noexcept</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>:</span> resource_(other.Resource()) {}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    T<span style=color:#f92672>*</span> <span style=color:#a6e22e>allocate</span>(std<span style=color:#f92672>::</span>size_t n) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>void</span><span style=color:#f92672>*</span> ptr <span style=color:#f92672>=</span> resource_<span style=color:#f92672>-&gt;</span>Allocate(n <span style=color:#f92672>*</span> <span style=color:#66d9ef>sizeof</span>(T), <span style=color:#66d9ef>alignof</span>(T));
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>static_cast</span><span style=color:#f92672>&lt;</span>T<span style=color:#f92672>*&gt;</span>(ptr);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>deallocate</span>(T<span style=color:#f92672>*</span> <span style=color:#75715e>/*p*/</span>, std<span style=color:#f92672>::</span>size_t <span style=color:#75715e>/*n*/</span>) <span style=color:#66d9ef>noexcept</span> {
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// Arena allocator does nothing on individual deallocation
+</span></span></span><span style=display:flex><span>        <span style=color:#75715e>// Memory is reclaimed when ArenaResource is destroyed or reset
+</span></span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    ArenaResource<span style=color:#f92672>*</span> <span style=color:#a6e22e>Resource</span>() <span style=color:#66d9ef>const</span> { <span style=color:#66d9ef>return</span> resource_; }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Two allocators are equal iff they share the same arena
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>bool</span> <span style=color:#66d9ef>operator</span><span style=color:#f92672>==</span>(<span style=color:#66d9ef>const</span> ArenaAllocator<span style=color:#f92672>&amp;</span> other) <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>noexcept</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> resource_ <span style=color:#f92672>==</span> other.resource_;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>bool</span> <span style=color:#66d9ef>operator</span><span style=color:#f92672>!=</span>(<span style=color:#66d9ef>const</span> ArenaAllocator<span style=color:#f92672>&amp;</span> other) <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>noexcept</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> resource_ <span style=color:#f92672>!=</span> other.resource_;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>private</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    ArenaResource<span style=color:#f92672>*</span> resource_;
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// Rebind support
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>template</span> <span style=color:#f92672>&lt;</span><span style=color:#66d9ef>typename</span> T<span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>std</span><span style=color:#f92672>::</span>allocator_traits<span style=color:#f92672>&lt;</span>ArenaAllocator<span style=color:#f92672>&lt;</span>T<span style=color:#f92672>&gt;&gt;</span> {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// All the defaults are fine; just expose the rebind mechanism
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>// The compiler handles rebind automatically through the templated
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>// converting constructor
+</span></span></span><span style=display:flex><span>};
+</span></span></code></pre></div><p>使用示例：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>ArenaExample</span>() {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Create a 64KB arena
+</span></span></span><span style=display:flex><span>    ArenaResource arena(<span style=color:#ae81ff>64</span> <span style=color:#f92672>*</span> <span style=color:#ae81ff>1024</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Create a vector that allocates from the arena
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> Alloc <span style=color:#f92672>=</span> ArenaAllocator<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span><span style=color:#f92672>&gt;</span>;
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>vector<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span>, Alloc<span style=color:#f92672>&gt;</span> vec(Alloc(arena));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Fill it up
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>1000</span>; <span style=color:#f92672>++</span>i) {
+</span></span><span style=display:flex><span>        vec.push_back(i);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;Arena used: &#34;</span> <span style=color:#f92672>&lt;&lt;</span> arena.Used() <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34; / &#34;</span>
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&lt;&lt;</span> arena.Capacity() <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34; bytes&#34;</span> <span style=color:#f92672>&lt;&lt;</span> std<span style=color:#f92672>::</span>endl;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// When vec goes out of scope, destructors run but no individual
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>// deallocation happens. Arena reclaims everything at once.
+</span></span></span><span style=display:flex><span>}
+</span></span></code></pre></div><blockquote><p><strong>注意</strong>：arena 分配器不处理单个对象的释放。所有内存的生命周期绑定在 <code>ArenaResource</code> 上。容器析构时会调用元素的析构函数，但不会释放底层内存。只有当 <code>ArenaResource</code> 被销毁或 <code>Reset()</code> 时，内存才被回收。</p></blockquote><p>这意味着你不能随便在 arena 上创建对象然后期望它独立释放。所有分配在同一个 arena 上的对象必须具有相同或嵌套的生命周期。</p><h2 id=实战二固定大小内存池分配器>实战二：固定大小内存池分配器<a hidden class=anchor aria-hidden=true href=#实战二固定大小内存池分配器>#</a></h2><p>内存池（memory pool）分配器从一大块预分配内存中切出固定大小的块。每次分配取一个空闲块，释放时归还到空闲链表。</p><p>这特别适合 <code>std::list</code>、<code>std::map</code> 这类基于节点的容器，因为它们的每个节点大小相同。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstddef&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cstdlib&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;memory&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;new&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;cassert&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;vector&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;list&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;iostream&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>MemoryPool</span> {
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Construct a pool with block_size bytes per block, and capacity blocks
+</span></span></span><span style=display:flex><span>    MemoryPool(std<span style=color:#f92672>::</span>size_t block_size, std<span style=color:#f92672>::</span>size_t capacity)
+</span></span><span style=display:flex><span>        <span style=color:#f92672>:</span> block_size_(block_size),
+</span></span><span style=display:flex><span>          capacity_(capacity),
+</span></span><span style=display:flex><span>          used_count_(<span style=color:#ae81ff>0</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// Allocate the raw memory
+</span></span></span><span style=display:flex><span>        buffer_ <span style=color:#f92672>=</span> <span style=color:#66d9ef>static_cast</span><span style=color:#f92672>&lt;</span><span style=color:#66d9ef>char</span><span style=color:#f92672>*&gt;</span>(<span style=color:#f92672>::</span><span style=color:#66d9ef>operator</span> <span style=color:#66d9ef>new</span>(block_size <span style=color:#f92672>*</span> capacity));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// Build the free list: each block starts with a pointer to the next free block
+</span></span></span><span style=display:flex><span>        free_list_ <span style=color:#f92672>=</span> <span style=color:#66d9ef>nullptr</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (std<span style=color:#f92672>::</span>size_t i <span style=color:#f92672>=</span> capacity; i <span style=color:#f92672>&gt;</span> <span style=color:#ae81ff>0</span>; <span style=color:#f92672>--</span>i) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>char</span><span style=color:#f92672>*</span> block <span style=color:#f92672>=</span> buffer_ <span style=color:#f92672>+</span> (i <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>) <span style=color:#f92672>*</span> block_size;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>auto</span> next <span style=color:#f92672>=</span> <span style=color:#66d9ef>reinterpret_cast</span><span style=color:#f92672>&lt;</span>NodePtr<span style=color:#f92672>&gt;</span>(block);
+</span></span><span style=display:flex><span>            next<span style=color:#f92672>-&gt;</span>next <span style=color:#f92672>=</span> free_list_;
+</span></span><span style=display:flex><span>            free_list_ <span style=color:#f92672>=</span> next;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>~</span>MemoryPool() {
+</span></span><span style=display:flex><span>        <span style=color:#f92672>::</span><span style=color:#66d9ef>operator</span> <span style=color:#66d9ef>delete</span>(buffer_);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    MemoryPool(<span style=color:#66d9ef>const</span> MemoryPool<span style=color:#f92672>&amp;</span>) <span style=color:#f92672>=</span> <span style=color:#66d9ef>delete</span>;
+</span></span><span style=display:flex><span>    MemoryPool<span style=color:#f92672>&amp;</span> <span style=color:#66d9ef>operator</span><span style=color:#f92672>=</span>(<span style=color:#66d9ef>const</span> MemoryPool<span style=color:#f92672>&amp;</span>) <span style=color:#f92672>=</span> <span style=color:#66d9ef>delete</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Allocate one block
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span><span style=color:#f92672>*</span> <span style=color:#a6e22e>Allocate</span>() {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (<span style=color:#f92672>!</span>free_list_) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>throw</span> std<span style=color:#f92672>::</span>bad_alloc();
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        NodePtr block <span style=color:#f92672>=</span> free_list_;
+</span></span><span style=display:flex><span>        free_list_ <span style=color:#f92672>=</span> free_list_<span style=color:#f92672>-&gt;</span>next;
+</span></span><span style=display:flex><span>        <span style=color:#f92672>++</span>used_count_;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> block;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Return a block to the pool
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>Deallocate</span>(<span style=color:#66d9ef>void</span><span style=color:#f92672>*</span> p) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (<span style=color:#f92672>!</span>p) <span style=color:#66d9ef>return</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>auto</span> block <span style=color:#f92672>=</span> <span style=color:#66d9ef>static_cast</span><span style=color:#f92672>&lt;</span>NodePtr<span style=color:#f92672>&gt;</span>(p);
+</span></span><span style=display:flex><span>        block<span style=color:#f92672>-&gt;</span>next <span style=color:#f92672>=</span> free_list_;
+</span></span><span style=display:flex><span>        free_list_ <span style=color:#f92672>=</span> block;
+</span></span><span style=display:flex><span>        <span style=color:#f92672>--</span>used_count_;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>size_t BlockSize() <span style=color:#66d9ef>const</span> { <span style=color:#66d9ef>return</span> block_size_; }
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>size_t Capacity() <span style=color:#66d9ef>const</span> { <span style=color:#66d9ef>return</span> capacity_; }
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>size_t UsedCount() <span style=color:#66d9ef>const</span> { <span style=color:#66d9ef>return</span> used_count_; }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>private</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Intrusive free list node
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>FreeNode</span> {
+</span></span><span style=display:flex><span>        FreeNode<span style=color:#f92672>*</span> next;
+</span></span><span style=display:flex><span>    };
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> NodePtr <span style=color:#f92672>=</span> FreeNode<span style=color:#f92672>*</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>char</span><span style=color:#f92672>*</span> buffer_;
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>size_t block_size_;
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>size_t capacity_;
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>size_t used_count_;
+</span></span><span style=display:flex><span>    NodePtr free_list_;
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>template</span> <span style=color:#f92672>&lt;</span><span style=color:#66d9ef>typename</span> T<span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>PoolAllocator</span> {
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> value_type <span style=color:#f92672>=</span> T;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> is_always_equal <span style=color:#f92672>=</span> std<span style=color:#f92672>::</span>false_type;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> propagate_on_container_copy_assignment <span style=color:#f92672>=</span> std<span style=color:#f92672>::</span>false_type;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> propagate_on_container_move_assignment <span style=color:#f92672>=</span> std<span style=color:#f92672>::</span>false_type;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> propagate_on_container_swap <span style=color:#f92672>=</span> std<span style=color:#f92672>::</span>false_type;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>explicit</span> <span style=color:#a6e22e>PoolAllocator</span>(MemoryPool<span style=color:#f92672>&amp;</span> pool) <span style=color:#f92672>:</span> pool_(<span style=color:#f92672>&amp;</span>pool) {}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>template</span> <span style=color:#f92672>&lt;</span><span style=color:#66d9ef>typename</span> U<span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>    PoolAllocator(<span style=color:#66d9ef>const</span> PoolAllocator<span style=color:#f92672>&lt;</span>U<span style=color:#f92672>&gt;&amp;</span> other) <span style=color:#66d9ef>noexcept</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>:</span> pool_(other.Pool()) {}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    T<span style=color:#f92672>*</span> <span style=color:#a6e22e>allocate</span>(std<span style=color:#f92672>::</span>size_t n) {
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// This pool allocator is designed for single-object allocation
+</span></span></span><span style=display:flex><span>        <span style=color:#75715e>// (node-based containers). For n &gt; 1, fall back to global new.
+</span></span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (n <span style=color:#f92672>==</span> <span style=color:#ae81ff>1</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>static_cast</span><span style=color:#f92672>&lt;</span>T<span style=color:#f92672>*&gt;</span>(pool_<span style=color:#f92672>-&gt;</span>Allocate());
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>static_cast</span><span style=color:#f92672>&lt;</span>T<span style=color:#f92672>*&gt;</span>(<span style=color:#f92672>::</span><span style=color:#66d9ef>operator</span> <span style=color:#66d9ef>new</span>(n <span style=color:#f92672>*</span> <span style=color:#66d9ef>sizeof</span>(T)));
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>deallocate</span>(T<span style=color:#f92672>*</span> p, std<span style=color:#f92672>::</span>size_t n) <span style=color:#66d9ef>noexcept</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (n <span style=color:#f92672>==</span> <span style=color:#ae81ff>1</span>) {
+</span></span><span style=display:flex><span>            pool_<span style=color:#f92672>-&gt;</span>Deallocate(p);
+</span></span><span style=display:flex><span>        } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>            <span style=color:#f92672>::</span><span style=color:#66d9ef>operator</span> <span style=color:#66d9ef>delete</span>(p);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    MemoryPool<span style=color:#f92672>*</span> <span style=color:#a6e22e>Pool</span>() <span style=color:#66d9ef>const</span> { <span style=color:#66d9ef>return</span> pool_; }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>bool</span> <span style=color:#66d9ef>operator</span><span style=color:#f92672>==</span>(<span style=color:#66d9ef>const</span> PoolAllocator<span style=color:#f92672>&amp;</span> other) <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>noexcept</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> pool_ <span style=color:#f92672>==</span> other.pool_;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>bool</span> <span style=color:#66d9ef>operator</span><span style=color:#f92672>!=</span>(<span style=color:#66d9ef>const</span> PoolAllocator<span style=color:#f92672>&amp;</span> other) <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>noexcept</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> pool_ <span style=color:#f92672>!=</span> other.pool_;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>private</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    MemoryPool<span style=color:#f92672>*</span> pool_;
+</span></span><span style=display:flex><span>};
+</span></span></code></pre></div><p>使用示例：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>PoolExample</span>() {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// std::list&lt;int&gt; nodes are typically ~24 bytes (prev + next + value)
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>// We&#39;ll be generous and use 32 bytes per block
+</span></span></span><span style=display:flex><span>    MemoryPool pool(<span style=color:#ae81ff>32</span>, <span style=color:#ae81ff>10000</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> Alloc <span style=color:#f92672>=</span> PoolAllocator<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span><span style=color:#f92672>&gt;</span>;
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>list<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span>, Alloc<span style=color:#f92672>&gt;</span> lst(Alloc(pool));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>5000</span>; <span style=color:#f92672>++</span>i) {
+</span></span><span style=display:flex><span>        lst.push_back(i);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;Pool usage: &#34;</span> <span style=color:#f92672>&lt;&lt;</span> pool.UsedCount() <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34; / &#34;</span>
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&lt;&lt;</span> pool.Capacity() <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34; blocks&#34;</span> <span style=color:#f92672>&lt;&lt;</span> std<span style=color:#f92672>::</span>endl;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Removing elements returns blocks to the pool
+</span></span></span><span style=display:flex><span>    lst.pop_front();
+</span></span><span style=display:flex><span>    lst.pop_front();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;After pops: &#34;</span> <span style=color:#f92672>&lt;&lt;</span> pool.UsedCount() <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34; blocks in use&#34;</span>
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&lt;&lt;</span> std<span style=color:#f92672>::</span>endl;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><blockquote><p><strong>关键点</strong>：内存池分配器适合节点大小固定的容器。对 <code>std::vector</code> 意义不大，因为 vector 会一次性申请一大段连续内存。对 <code>std::list</code> 和 <code>std::map</code> 效果最好。</p></blockquote><h2 id=什么时候该写自定义分配器>什么时候该写自定义分配器<a hidden class=anchor aria-hidden=true href=#什么时候该写自定义分配器>#</a></h2><p>不是所有场景都需要自定义分配器。大多数情况下，<code>std::allocator</code> 配合系统默认的 <code>malloc/free</code> 已经够用。以下场景值得考虑：</p><p><strong>1. 实时系统</strong></p><p>游戏、音频处理、控制系统对延迟极度敏感。<code>malloc</code> 的耗时不可预测，可能在最坏情况下卡住整个帧。arena 分配器保证 O(1) 的分配时间。</p><p><strong>2. 嵌入式系统</strong></p><p>内存总量有限，没有操作系统级别的堆管理器。你需要在一块确定的内存上自行管理分配。</p><p><strong>3. 高频分配/释放</strong></p><p>某些程序会在短时间内大量创建和销毁小对象（比如解析器 AST 节点、游戏实体组件）。内存池可以消除碎片化，减少系统调用的开销。</p><p><strong>4. 调试和统计</strong></p><p>你可以写一个统计分配次数和总量的分配器，用来定位内存瓶颈。或者写一个在释放后填充垃圾数据的分配器，帮你抓悬空指针。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#66d9ef>template</span> <span style=color:#f92672>&lt;</span><span style=color:#66d9ef>typename</span> T<span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>DebugAllocator</span> {
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>using</span> value_type <span style=color:#f92672>=</span> T;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    T<span style=color:#f92672>*</span> <span style=color:#a6e22e>allocate</span>(std<span style=color:#f92672>::</span>size_t n) {
+</span></span><span style=display:flex><span>        std<span style=color:#f92672>::</span>cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;[ALLOC] &#34;</span> <span style=color:#f92672>&lt;&lt;</span> n <span style=color:#f92672>*</span> <span style=color:#66d9ef>sizeof</span>(T)
+</span></span><span style=display:flex><span>                  <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34; bytes (&#34;</span> <span style=color:#f92672>&lt;&lt;</span> n <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34; objects)&#34;</span> <span style=color:#f92672>&lt;&lt;</span> std<span style=color:#f92672>::</span>endl;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>static_cast</span><span style=color:#f92672>&lt;</span>T<span style=color:#f92672>*&gt;</span>(<span style=color:#f92672>::</span><span style=color:#66d9ef>operator</span> <span style=color:#66d9ef>new</span>(n <span style=color:#f92672>*</span> <span style=color:#66d9ef>sizeof</span>(T)));
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>deallocate</span>(T<span style=color:#f92672>*</span> p, std<span style=color:#f92672>::</span>size_t n) <span style=color:#66d9ef>noexcept</span> {
+</span></span><span style=display:flex><span>        std<span style=color:#f92672>::</span>cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;[FREE] &#34;</span> <span style=color:#f92672>&lt;&lt;</span> n <span style=color:#f92672>*</span> <span style=color:#66d9ef>sizeof</span>(T) <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34; bytes&#34;</span> <span style=color:#f92672>&lt;&lt;</span> std<span style=color:#f92672>::</span>endl;
+</span></span><span style=display:flex><span>        <span style=color:#f92672>::</span><span style=color:#66d9ef>operator</span> <span style=color:#66d9ef>delete</span>(p);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>bool</span> <span style=color:#66d9ef>operator</span><span style=color:#f92672>==</span>(<span style=color:#66d9ef>const</span> DebugAllocator<span style=color:#f92672>&amp;</span>) <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>noexcept</span> { <span style=color:#66d9ef>return</span> true; }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>bool</span> <span style=color:#66d9ef>operator</span><span style=color:#f92672>!=</span>(<span style=color:#66d9ef>const</span> DebugAllocator<span style=color:#f92672>&amp;</span>) <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>noexcept</span> { <span style=color:#66d9ef>return</span> false; }
+</span></span><span style=display:flex><span>};
+</span></span></code></pre></div><p><strong>5. NUMA 感知</strong></p><p>在多路服务器上，远端内存访问比本地内存慢得多。你可以写一个绑定到特定 NUMA 节点的分配器。</p><h2 id=有状态分配器与容器语义>有状态分配器与容器语义<a hidden class=anchor aria-hidden=true href=#有状态分配器与容器语义>#</a></h2><p>这是最容易踩坑的地方。</p><p>默认的 <code>std::allocator</code> 是无状态的。两个 <code>std::allocator&lt;int></code> 实例永远是"相等"的，因为它们都调用全局的 <code>operator new</code>。但自定义分配器往往是有状态的，比如持有指向 arena 或内存池的指针。</p><h3 id=核心问题>核心问题<a hidden class=anchor aria-hidden=true href=#核心问题>#</a></h3><p>当你拷贝、移动、交换容器时，分配器怎么办？</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span>ArenaResource <span style=color:#a6e22e>arena1</span>(<span style=color:#ae81ff>4096</span>);
+</span></span><span style=display:flex><span>ArenaResource <span style=color:#a6e22e>arena2</span>(<span style=color:#ae81ff>4096</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> Alloc <span style=color:#f92672>=</span> ArenaAllocator<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span><span style=color:#f92672>&gt;</span>;
+</span></span><span style=display:flex><span>std<span style=color:#f92672>::</span>vector<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span>, Alloc<span style=color:#f92672>&gt;</span> v1(Alloc(arena1));
+</span></span><span style=display:flex><span>std<span style=color:#f92672>::</span>vector<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span>, Alloc<span style=color:#f92672>&gt;</span> v2(Alloc(arena2));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>v1 <span style=color:#f92672>=</span> v2;       <span style=color:#75715e>// Copy assignment: should v1 now use arena2?
+</span></span></span><span style=display:flex><span>v1 <span style=color:#f92672>=</span> std<span style=color:#f92672>::</span>move(v2);  <span style=color:#75715e>// Move assignment: what about v1&#39;s elements in arena1?
+</span></span></span><span style=display:flex><span>std<span style=color:#f92672>::</span>swap(v1, v2);   <span style=color:#75715e>// Swap: should the allocators swap too?
+</span></span></span></code></pre></div><p>答案取决于分配器里定义的 <strong>propagate</strong> 标志：</p><h3 id=三种-propagate-标志>三种 propagate 标志<a hidden class=anchor aria-hidden=true href=#三种-propagate-标志>#</a></h3><table><thead><tr><th>标志</th><th>拷贝赋值时的行为</th></tr></thead><tbody><tr><td><code>propagate_on_container_copy_assignment = true_type</code></td><td>分配器也跟着赋值，旧分配器的内存需要先释放</td></tr><tr><td><code>propagate_on_container_copy_assignment = false_type</code></td><td>分配器不变，元素被拷贝到旧分配器的内存中</td></tr><tr><td>（未定义）</td><td>等同于 <code>false_type</code>，traits 提供默认值</td></tr></tbody></table><p>移动赋值和 swap 同理，各有对应的标志。</p><h3 id=选择策略>选择策略<a hidden class=anchor aria-hidden=true href=#选择策略>#</a></h3><ul><li><strong>无状态分配器</strong>：全部设为 <code>false_type</code>（或不设，用默认值）。<code>is_always_equal = true_type</code>。</li><li><strong>arena 分配器</strong>：通常设为 <code>false_type</code>。容器拷贝时，元素被复制到目标 arena 中，源 arena 不受影响。</li><li><strong>独占型内存池</strong>：如果移动语义应该转移所有权，设 <code>move_assignment = true_type</code>。</li></ul><blockquote><p><strong>陷阱</strong>：如果 <code>propagate_on_container_swap = true_type</code>，但两个分配器不相等，<code>swap</code> 会触发未定义行为。标准要求在 propagate_swap 为 true 时，交换的两个容器必须拥有相等的分配器。</p></blockquote><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>// DANGER: undefined behavior if allocators are not equal
+</span></span></span><span style=display:flex><span><span style=color:#75715e>// but propagate_on_container_swap is true_type
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> Alloc <span style=color:#f92672>=</span> PoolAllocator<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span><span style=color:#f92672>&gt;</span>;
+</span></span><span style=display:flex><span>MemoryPool <span style=color:#a6e22e>pool1</span>(<span style=color:#ae81ff>32</span>, <span style=color:#ae81ff>100</span>);
+</span></span><span style=display:flex><span>MemoryPool <span style=color:#a6e22e>pool2</span>(<span style=color:#ae81ff>32</span>, <span style=color:#ae81ff>100</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>std<span style=color:#f92672>::</span>vector<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span>, Alloc<span style=color:#f92672>&gt;</span> a(Alloc(pool1));
+</span></span><span style=display:flex><span>std<span style=color:#f92672>::</span>vector<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span>, Alloc<span style=color:#f92672>&gt;</span> b(Alloc(pool2));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// pool1 != pool2, so allocators are not equal
+</span></span></span><span style=display:flex><span><span style=color:#75715e>// If propagate_on_container_swap is true, this is UB:
+</span></span></span><span style=display:flex><span>std<span style=color:#f92672>::</span>swap(a, b);
+</span></span></code></pre></div><p>解决办法：要么设 <code>propagate_on_container_swap = false_type</code>（元素被逐个移动到对方的内存池），要么确保只交换共享同一分配器的容器。</p><h2 id=c17-的-pmr多态内存资源>C++17 的 PMR：多态内存资源<a hidden class=anchor aria-hidden=true href=#c17-的-pmr多态内存资源>#</a></h2><p>前面展示的自定义分配器都是基于模板的。你在编译期就确定了分配策略。如果你想在运行时切换分配策略（比如根据配置文件选择 arena 或 pool），模板方案就不太灵活了。</p><p>C++17 引入了 <strong>PMR（Polymorphic Memory Resource）</strong> 来解决这个问题。</p><h3 id=核心类型>核心类型<a hidden class=anchor aria-hidden=true href=#核心类型>#</a></h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#66d9ef>namespace</span> std<span style=color:#f92672>::</span>pmr {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// Abstract base class for memory resources
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>memory_resource</span> {
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span><span style=color:#f92672>*</span> allocate(std<span style=color:#f92672>::</span>size_t bytes, std<span style=color:#f92672>::</span>size_t alignment <span style=color:#f92672>=</span> <span style=color:#66d9ef>alignof</span>(max_align_t));
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>deallocate</span>(<span style=color:#66d9ef>void</span><span style=color:#f92672>*</span> p, std<span style=color:#f92672>::</span>size_t bytes,
+</span></span><span style=display:flex><span>                    std<span style=color:#f92672>::</span>size_t alignment <span style=color:#f92672>=</span> <span style=color:#66d9ef>alignof</span>(max_align_t));
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>bool</span> <span style=color:#a6e22e>is_equal</span>(<span style=color:#66d9ef>const</span> memory_resource<span style=color:#f92672>&amp;</span> other) <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>noexcept</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>virtual</span> <span style=color:#f92672>~</span>memory_resource() <span style=color:#f92672>=</span> <span style=color:#66d9ef>default</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>private</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>virtual</span> <span style=color:#66d9ef>void</span><span style=color:#f92672>*</span> do_allocate(std<span style=color:#f92672>::</span>size_t bytes, std<span style=color:#f92672>::</span>size_t alignment) <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>virtual</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>do_deallocate</span>(<span style=color:#66d9ef>void</span><span style=color:#f92672>*</span> p, std<span style=color:#f92672>::</span>size_t bytes,
+</span></span><span style=display:flex><span>                               std<span style=color:#f92672>::</span>size_t alignment) <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>virtual</span> <span style=color:#66d9ef>bool</span> <span style=color:#a6e22e>do_is_equal</span>(<span style=color:#66d9ef>const</span> memory_resource<span style=color:#f92672>&amp;</span> other) <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>noexcept</span> <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// pmr::vector uses polymorphic allocation through memory_resource*
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>template</span> <span style=color:#f92672>&lt;</span><span style=color:#66d9ef>typename</span> T<span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> vector <span style=color:#f92672>=</span> std<span style=color:#f92672>::</span>vector<span style=color:#f92672>&lt;</span>T, polymorphic_allocator<span style=color:#f92672>&lt;</span>T<span style=color:#f92672>&gt;&gt;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// pmr::string, pmr::list, pmr::map, etc.
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>using</span> string <span style=color:#f92672>=</span> std<span style=color:#f92672>::</span>basic_string<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>char</span>, std<span style=color:#f92672>::</span>char_traits<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>char</span><span style=color:#f92672>&gt;</span>,
+</span></span><span style=display:flex><span>                                 polymorphic_allocator<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>char</span><span style=color:#f92672>&gt;&gt;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>}  <span style=color:#75715e>// namespace std::pmr
+</span></span></span></code></pre></div><p><code>polymorphic_allocator&lt;T></code> 内部持有一个 <code>memory_resource*</code> 指针。所有分配请求通过虚函数派发到具体的内存资源。代价是多一次间接跳转（虚函数调用），好处是运行时灵活性。</p><h3 id=三种标准内存资源>三种标准内存资源<a hidden class=anchor aria-hidden=true href=#三种标准内存资源>#</a></h3><h4 id=monotonic_buffer_resource>monotonic_buffer_resource<a hidden class=anchor aria-hidden=true href=#monotonic_buffer_resource>#</a></h4><p>和前面写的 arena 分配器原理相同。只增不减，一次性释放。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;memory_resource&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;vector&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;iostream&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>MonotonicExample</span>() {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Use a stack buffer as backing memory
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>char</span> buffer[<span style=color:#ae81ff>4096</span>];
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>pmr<span style=color:#f92672>::</span>monotonic_buffer_resource mbr(
+</span></span><span style=display:flex><span>        buffer, <span style=color:#66d9ef>sizeof</span>(buffer), std<span style=color:#f92672>::</span>pmr<span style=color:#f92672>::</span>get_default_resource());
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// All allocations come from the stack buffer
+</span></span></span><span style=display:flex><span>        std<span style=color:#f92672>::</span>pmr<span style=color:#f92672>::</span>vector<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span><span style=color:#f92672>&gt;</span> vec(<span style=color:#f92672>&amp;</span>mbr);
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>100</span>; <span style=color:#f92672>++</span>i) {
+</span></span><span style=display:flex><span>            vec.push_back(i);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        std<span style=color:#f92672>::</span>pmr<span style=color:#f92672>::</span>vector<span style=color:#f92672>&lt;</span>std<span style=color:#f92672>::</span>pmr<span style=color:#f92672>::</span>string<span style=color:#f92672>&gt;</span> strs(<span style=color:#f92672>&amp;</span>mbr);
+</span></span><span style=display:flex><span>        strs.emplace_back(<span style=color:#e6db74>&#34;hello&#34;</span>);
+</span></span><span style=display:flex><span>        strs.emplace_back(<span style=color:#e6db74>&#34;world&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        std<span style=color:#f92672>::</span>cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;Used: &#34;</span> <span style=color:#f92672>&lt;&lt;</span> mbr.bytes_used() <span style=color:#f92672>&lt;&lt;</span> std<span style=color:#f92672>::</span>endl;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Reset: all memory is &#34;freed&#34; at once
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>// Individual deallocation is a no-op
+</span></span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;After scope exit, still used: &#34;</span>
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&lt;&lt;</span> mbr.bytes_used() <span style=color:#f92672>&lt;&lt;</span> std<span style=color:#f92672>::</span>endl;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    mbr.release();  <span style=color:#75715e>// Now it&#39;s actually reset
+</span></span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;After release: &#34;</span> <span style=color:#f92672>&lt;&lt;</span> mbr.bytes_used() <span style=color:#f92672>&lt;&lt;</span> std<span style=color:#f92672>::</span>endl;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h4 id=unsynchronized_pool_resource>unsynchronized_pool_resource<a hidden class=anchor aria-hidden=true href=#unsynchronized_pool_resource>#</a></h4><p>线程不安全的内存池。每个大小类别维护一个空闲链表。适合单线程场景，比 synchronized 版本快。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>UnsyncPoolExample</span>() {
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>pmr<span style=color:#f92672>::</span>unsynchronized_pool_resource pool;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>pmr<span style=color:#f92672>::</span>vector<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span><span style=color:#f92672>&gt;</span> vec(<span style=color:#f92672>&amp;</span>pool);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>10000</span>; <span style=color:#f92672>++</span>i) {
+</span></span><span style=display:flex><span>        vec.push_back(i);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Fast: individual deallocation returns blocks to the pool
+</span></span></span><span style=display:flex><span>    vec.clear();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Blocks are available for reuse without system calls
+</span></span></span><span style=display:flex><span>    vec.resize(<span style=color:#ae81ff>10000</span>);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h4 id=synchronized_pool_resource>synchronized_pool_resource<a hidden class=anchor aria-hidden=true href=#synchronized_pool_resource>#</a></h4><p>线程安全的内存池。内部使用互斥锁保护。多个线程可以安全地共享同一个 pool 实例。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;thread&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;mutex&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>SyncPoolExample</span>() {
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>pmr<span style=color:#f92672>::</span>synchronized_pool_resource pool;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>auto</span> worker <span style=color:#f92672>=</span> [<span style=color:#f92672>&amp;</span>pool]() {
+</span></span><span style=display:flex><span>        std<span style=color:#f92672>::</span>pmr<span style=color:#f92672>::</span>vector<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span><span style=color:#f92672>&gt;</span> vec(<span style=color:#f92672>&amp;</span>pool);
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>1000</span>; <span style=color:#f92672>++</span>i) {
+</span></span><span style=display:flex><span>            vec.push_back(i);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Safe: multiple threads share the same pool
+</span></span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span><span style=color:#66d9ef>thread</span> t1(worker);
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span><span style=color:#66d9ef>thread</span> t2(worker);
+</span></span><span style=display:flex><span>    t1.join();
+</span></span><span style=display:flex><span>    t2.join();
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h3 id=pool_options>pool_options<a hidden class=anchor aria-hidden=true href=#pool_options>#</a></h3><p>两种 pool 资源都可以接受 <code>pool_options</code> 来调优：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span>std<span style=color:#f92672>::</span>pmr<span style=color:#f92672>::</span>pool_options opts;
+</span></span><span style=display:flex><span>opts.max_blocks_per_chunk <span style=color:#f92672>=</span> <span style=color:#ae81ff>1024</span>;  <span style=color:#75715e>// Max blocks to allocate at once
+</span></span></span><span style=display:flex><span>opts.largest_required_pool_block <span style=color:#f92672>=</span> <span style=color:#ae81ff>1024</span>;  <span style=color:#75715e>// Max block size to pool
+</span></span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>std<span style=color:#f92672>::</span>pmr<span style=color:#f92672>::</span>unsynchronized_pool_resource pool(opts);
+</span></span></code></pre></div><p><code>max_blocks_per_chunk</code> 控制每次从上游资源（通常是系统堆）获取多少个空闲块。值越小，内存越省，但分配频率越高。</p><p><code>largest_required_pool_block</code> 设定池化的最大块大小。超过这个大小的分配请求直接转发给上游资源，不走池。</p><h3 id=自定义-memory_resource>自定义 memory_resource<a hidden class=anchor aria-hidden=true href=#自定义-memory_resource>#</a></h3><p>你可以继承 <code>memory_resource</code>，实现自己的分配策略：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>TrackingResource</span> <span style=color:#f92672>:</span> <span style=color:#66d9ef>public</span> std<span style=color:#f92672>::</span>pmr<span style=color:#f92672>::</span>memory_resource {
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>explicit</span> TrackingResource(std<span style=color:#f92672>::</span>pmr<span style=color:#f92672>::</span>memory_resource<span style=color:#f92672>*</span> upstream <span style=color:#f92672>=</span>
+</span></span><span style=display:flex><span>                                  std<span style=color:#f92672>::</span>pmr<span style=color:#f92672>::</span>get_default_resource())
+</span></span><span style=display:flex><span>        <span style=color:#f92672>:</span> upstream_(upstream), total_allocated_(<span style=color:#ae81ff>0</span>), total_deallocated_(<span style=color:#ae81ff>0</span>) {}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>size_t TotalAllocated() <span style=color:#66d9ef>const</span> { <span style=color:#66d9ef>return</span> total_allocated_; }
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>size_t TotalDeallocated() <span style=color:#66d9ef>const</span> { <span style=color:#66d9ef>return</span> total_deallocated_; }
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>size_t BytesInUse() <span style=color:#66d9ef>const</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> total_allocated_ <span style=color:#f92672>-</span> total_deallocated_;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>private</span><span style=color:#f92672>:</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span><span style=color:#f92672>*</span> do_allocate(std<span style=color:#f92672>::</span>size_t bytes, std<span style=color:#f92672>::</span>size_t alignment) <span style=color:#66d9ef>override</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>void</span><span style=color:#f92672>*</span> p <span style=color:#f92672>=</span> upstream_<span style=color:#f92672>-&gt;</span>allocate(bytes, alignment);
+</span></span><span style=display:flex><span>        total_allocated_ <span style=color:#f92672>+=</span> bytes;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> p;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>do_deallocate</span>(<span style=color:#66d9ef>void</span><span style=color:#f92672>*</span> p, std<span style=color:#f92672>::</span>size_t bytes,
+</span></span><span style=display:flex><span>                       std<span style=color:#f92672>::</span>size_t alignment) <span style=color:#66d9ef>override</span> {
+</span></span><span style=display:flex><span>        upstream_<span style=color:#f92672>-&gt;</span>deallocate(p, bytes, alignment);
+</span></span><span style=display:flex><span>        total_deallocated_ <span style=color:#f92672>+=</span> bytes;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>bool</span> <span style=color:#a6e22e>do_is_equal</span>(<span style=color:#66d9ef>const</span> memory_resource<span style=color:#f92672>&amp;</span> other) <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>noexcept</span> <span style=color:#66d9ef>override</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>this</span> <span style=color:#f92672>==</span> <span style=color:#f92672>&amp;</span>other;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>pmr<span style=color:#f92672>::</span>memory_resource<span style=color:#f92672>*</span> upstream_;
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>size_t total_allocated_;
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>size_t total_deallocated_;
+</span></span><span style=display:flex><span>};
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>TrackingExample</span>() {
+</span></span><span style=display:flex><span>    TrackingResource tracker;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>        std<span style=color:#f92672>::</span>pmr<span style=color:#f92672>::</span>vector<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span><span style=color:#f92672>&gt;</span> vec(<span style=color:#f92672>&amp;</span>tracker);
+</span></span><span style=display:flex><span>        vec.reserve(<span style=color:#ae81ff>1000</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        std<span style=color:#f92672>::</span>cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;After reserve(1000): &#34;</span>
+</span></span><span style=display:flex><span>                  <span style=color:#f92672>&lt;&lt;</span> tracker.BytesInUse() <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34; bytes in use&#34;</span> <span style=color:#f92672>&lt;&lt;</span> std<span style=color:#f92672>::</span>endl;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        vec.clear();
+</span></span><span style=display:flex><span>        std<span style=color:#f92672>::</span>cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;After clear: &#34;</span>
+</span></span><span style=display:flex><span>                  <span style=color:#f92672>&lt;&lt;</span> tracker.BytesInUse() <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34; bytes in use&#34;</span> <span style=color:#f92672>&lt;&lt;</span> std<span style=color:#f92672>::</span>endl;
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// Note: clear() doesn&#39;t free capacity
+</span></span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    std<span style=color:#f92672>::</span>cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;After destruction: &#34;</span>
+</span></span><span style=display:flex><span>              <span style=color:#f92672>&lt;&lt;</span> tracker.BytesInUse() <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34; bytes in use&#34;</span> <span style=color:#f92672>&lt;&lt;</span> std<span style=color:#f92672>::</span>endl;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=性能对比>性能对比<a hidden class=anchor aria-hidden=true href=#性能对比>#</a></h2><p>不同分配策略的性能特征差异很大。下面这张表概括了主要差异：</p><table><thead><tr><th>特性</th><th><code>std::allocator</code> (malloc)</th><th>Arena 分配器</th><th>内存池分配器</th></tr></thead><tbody><tr><td>分配速度</td><td>不确定，通常 100-500ns</td><td>O(1)，约 1-5ns</td><td>O(1)，约 5-20ns</td></tr><tr><td>释放速度</td><td>不确定，通常 50-300ns</td><td>不支持单个释放</td><td>O(1)，约 5-20ns</td></tr><tr><td>内存碎片</td><td>可能产生</td><td>无</td><td>极少</td></tr><tr><td>适合容器类型</td><td>全部</td><td>vector, string 批量</td><td>list, map, set 节点</td></tr><tr><td>线程安全</td><td>取决于 malloc 实现</td><td>不安全，需外部同步</td><td>取决于实现</td></tr><tr><td>内存利用率</td><td>高（按需分配）</td><td>低（预分配，可能浪费）</td><td>中（固定块大小）</td></tr><tr><td>缓存友好性</td><td>一般</td><td>极好（连续内存）</td><td>较好（相邻块连续）</td></tr><tr><td>可否复用已释放的内存</td><td>可以</td><td>不可以</td><td>可以</td></tr><tr><td>实现复杂度</td><td>无（用默认的）</td><td>低</td><td>中</td></tr></tbody></table><p>实际数字因平台和负载而异，但相对关系基本如此。</p><p>做一个简单的 benchmark 感受一下差距：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;chrono&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;list&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;iostream&gt;</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>BenchmarkListPush</span>() {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span> N <span style=color:#f92672>=</span> <span style=color:#ae81ff>100000</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// 1. Default allocator
+</span></span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>auto</span> start <span style=color:#f92672>=</span> std<span style=color:#f92672>::</span>chrono<span style=color:#f92672>::</span>high_resolution_clock<span style=color:#f92672>::</span>now();
+</span></span><span style=display:flex><span>        std<span style=color:#f92672>::</span>list<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span><span style=color:#f92672>&gt;</span> lst;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> N; <span style=color:#f92672>++</span>i) {
+</span></span><span style=display:flex><span>            lst.push_back(i);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>auto</span> end <span style=color:#f92672>=</span> std<span style=color:#f92672>::</span>chrono<span style=color:#f92672>::</span>high_resolution_clock<span style=color:#f92672>::</span>now();
+</span></span><span style=display:flex><span>        std<span style=color:#f92672>::</span>cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;Default allocator: &#34;</span>
+</span></span><span style=display:flex><span>                  <span style=color:#f92672>&lt;&lt;</span> std<span style=color:#f92672>::</span>chrono<span style=color:#f92672>::</span>duration_cast<span style=color:#f92672>&lt;</span>std<span style=color:#f92672>::</span>chrono<span style=color:#f92672>::</span>microseconds<span style=color:#f92672>&gt;</span>(
+</span></span><span style=display:flex><span>                         end <span style=color:#f92672>-</span> start)
+</span></span><span style=display:flex><span>                         .count()
+</span></span><span style=display:flex><span>                  <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34; us&#34;</span> <span style=color:#f92672>&lt;&lt;</span> std<span style=color:#f92672>::</span>endl;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// 2. Pool allocator
+</span></span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>        MemoryPool pool(<span style=color:#ae81ff>32</span>, N <span style=color:#f92672>+</span> <span style=color:#ae81ff>100</span>);
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>auto</span> start <span style=color:#f92672>=</span> std<span style=color:#f92672>::</span>chrono<span style=color:#f92672>::</span>high_resolution_clock<span style=color:#f92672>::</span>now();
+</span></span><span style=display:flex><span>        std<span style=color:#f92672>::</span>list<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span>, PoolAllocator<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span><span style=color:#f92672>&gt;&gt;</span> lst(PoolAllocator<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span><span style=color:#f92672>&gt;</span>(pool));
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> N; <span style=color:#f92672>++</span>i) {
+</span></span><span style=display:flex><span>            lst.push_back(i);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>auto</span> end <span style=color:#f92672>=</span> std<span style=color:#f92672>::</span>chrono<span style=color:#f92672>::</span>high_resolution_clock<span style=color:#f92672>::</span>now();
+</span></span><span style=display:flex><span>        std<span style=color:#f92672>::</span>cout <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34;Pool allocator: &#34;</span>
+</span></span><span style=display:flex><span>                  <span style=color:#f92672>&lt;&lt;</span> std<span style=color:#f92672>::</span>chrono<span style=color:#f92672>::</span>duration_cast<span style=color:#f92672>&lt;</span>std<span style=color:#f92672>::</span>chrono<span style=color:#f92672>::</span>microseconds<span style=color:#f92672>&gt;</span>(
+</span></span><span style=display:flex><span>                         end <span style=color:#f92672>-</span> start)
+</span></span><span style=display:flex><span>                         .count()
+</span></span><span style=display:flex><span>                  <span style=color:#f92672>&lt;&lt;</span> <span style=color:#e6db74>&#34; us&#34;</span> <span style=color:#f92672>&lt;&lt;</span> std<span style=color:#f92672>::</span>endl;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>在典型的 x86_64 Linux 平台上，pool 版本通常快 2-5 倍，因为省去了大量 <code>malloc</code> 调用。</p><h2 id=实践建议>实践建议<a hidden class=anchor aria-hidden=true href=#实践建议>#</a></h2><p>总结一下实际工作中的选择策略。</p><p><strong>1. 不要过早优化</strong></p><p>如果性能不是瓶颈，就用 <code>std::allocator</code>。自定义分配器增加了代码复杂度，也让调试更困难。</p><p><strong>2. 先 profile，再优化</strong></p><p>在引入自定义分配器之前，用工具（Valgrind、ASan、instruments）确认内存分配确实是瓶颈。很多时候瓶颈在别的地方。</p><p><strong>3. 优先用 PMR</strong></p><p>C++17 的 PMR 比手写模板分配器更灵活，也更容易测试。如果你的项目用 C++17 或更新标准，优先考虑 <code>std::pmr</code>。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-cpp data-lang=cpp><span style=display:flex><span><span style=color:#75715e>// Clean and flexible: choose allocation strategy at runtime
+</span></span></span><span style=display:flex><span>std<span style=color:#f92672>::</span>pmr<span style=color:#f92672>::</span>monotonic_buffer_resource arena(<span style=color:#ae81ff>1024</span> <span style=color:#f92672>*</span> <span style=color:#ae81ff>1024</span>);
+</span></span><span style=display:flex><span>std<span style=color:#f92672>::</span>pmr<span style=color:#f92672>::</span>vector<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>int</span><span style=color:#f92672>&gt;</span> vec(<span style=color:#f92672>&amp;</span>arena);
+</span></span></code></pre></div><p><strong>4. Arena 适合临时批量操作</strong></p><p>帧级别的临时数据、请求处理中的中间结果，这些场景下 arena 分配器能省掉大量 <code>malloc/free</code> 开销。记住 arena 的限制：不支持单个释放。</p><p><strong>5. Pool 适合节点容器</strong></p><p><code>std::list</code>、<code>std::map</code>、<code>std::unordered_map</code> 这些基于节点的容器，每次分配的节点大小固定。内存池天生适合这种模式。</p><p><strong>6. 注意 propagate 语义</strong></p><p>有状态分配器一定要想清楚 <code>propagate_on_container_*</code> 的取值。不设的话，默认都是 <code>false_type</code>，大多数时候这是对的，但 swap 场景下可能出现意料之外的行为。</p><p><strong>7. 测试时用 DebugAllocator</strong></p><p>在开发阶段，用一个带日志的分配器帮你发现异常的分配模式（比如频繁分配释放、过大的单次分配）。</p><hr><p>分配器是 STL 中被严重低估的机制。它不只是 <code>new</code> 的封装，而是一套完整的内存策略抽象。理解它，你就能在面对性能瓶颈时多一张底牌。从默认分配器开始，在需要时切换到 PMR 或自定义实现，这是比较务实的路径。</p></div><footer class=post-footer><ul class=post-tags><li><a href=https://Wayne-cpp.github.io/blog/tags/c++/>C++</a></li><li><a href=https://Wayne-cpp.github.io/blog/tags/stl/>STL</a></li><li><a href=https://Wayne-cpp.github.io/blog/tags/%E5%88%86%E9%85%8D%E5%99%A8/>分配器</a></li><li><a href=https://Wayne-cpp.github.io/blog/tags/allocator/>Allocator</a></li><li><a href=https://Wayne-cpp.github.io/blog/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/>内存管理</a></li></ul><nav class=paginav><a class=prev href=https://Wayne-cpp.github.io/blog/posts/ai-knowledge-base-with-agents/><span class=title>« Prev</span>
+<span>用 AI Agent 构建零代码知识库：采集、分析、归档一条龙</span>
+</a><a class=next href=https://Wayne-cpp.github.io/blog/posts/cpp-stl-functor/><span class=title>Next »</span>
+<span>C++ 函数对象（Functor）：从 operator() 到标准库函数对象</span></a></nav></footer></article></main><footer class=footer><span>&copy; 2026 <a href=https://Wayne-cpp.github.io/blog/>Wayne Blog</a></span> ·
+<span>Powered by
+<a href="https://gohugo.io/?utm_source=papermod" rel=noopener target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top id=top-link class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey=g><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var toplink=document.getElementById("top-link");window.onscroll=function(){const e=window.innerHeight;document.body.scrollTop>e||document.documentElement.scrollTop>e?toplink.classList.remove("hidden"):toplink.classList.add("hidden")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script><script>document.querySelectorAll("pre > code").forEach(e=>{const n=e.parentNode.parentNode,t=document.createElement("button");t.classList.add("copy-code"),t.innerHTML="copy";function s(){t.innerHTML="copied!",setTimeout(()=>{t.innerHTML="copy"},2e3)}t.addEventListener("click",t=>{if("clipboard"in navigator){navigator.clipboard.writeText(e.textContent),s();return}const n=document.createRange();n.selectNodeContents(e);const o=window.getSelection();o.removeAllRanges(),o.addRange(n);try{document.execCommand("copy"),s()}catch{}o.removeRange(n)}),n.classList.contains("highlight")?n.appendChild(t):n.parentNode.firstChild==n||(e.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName=="TABLE"?e.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(t):e.parentNode.appendChild(t))})</script></body></html>

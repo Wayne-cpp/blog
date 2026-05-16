@@ -11,8 +11,22 @@
     </image>
     <generator>Hugo</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 15 Aug 2021 10:00:00 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 17 Aug 2021 10:00:00 +0800</lastBuildDate>
     <atom:link href="https://Wayne-cpp.github.io/blog/tags/stl/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>C&#43;&#43; 分配器（Allocator）：STL 容器的内存管理抽象</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-stl-allocator/</link>
+      <pubDate>Tue, 17 Aug 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-stl-allocator/</guid>
+      <description>深入剖析 C++ 分配器的设计哲学与实现机制。从默认的 std::allocator 出发，讲清楚 allocate/deallocate、construct/destroy 的演进，以及如何自定义分配器实现内存池、arena 分配等高性能策略。</description>
+    </item>
+    <item>
+      <title>C&#43;&#43; 函数对象（Functor）：从 operator() 到标准库函数对象</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-stl-functor/</link>
+      <pubDate>Mon, 16 Aug 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-stl-functor/</guid>
+      <description>深入剖析 C++ 函数对象的本质——重载 operator() 的类。从最简单的函子到标准库提供的算术、比较、逻辑函数对象，再到 C++11 std::function 的类型擦除与 Lambda 的关系，讲清楚函子在 STL 算法中的核心角色。</description>
+    </item>
     <item>
       <title>C&#43;&#43; STL 算法全景：从排序到数值计算的泛型力量</title>
       <link>https://Wayne-cpp.github.io/blog/posts/cpp-stl-algorithms/</link>

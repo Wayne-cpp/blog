@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Operator() on Wayne Blog</title>
+    <link>https://Wayne-cpp.github.io/blog/tags/operator/</link>
+    <description>Recent content in Operator() on Wayne Blog</description>
+    <image>
+      <title>Wayne Blog</title>
+      <url>https://Wayne-cpp.github.io/blog/papermod-cover.png</url>
+      <link>https://Wayne-cpp.github.io/blog/papermod-cover.png</link>
+    </image>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 16 Aug 2021 10:00:00 +0800</lastBuildDate>
+    <atom:link href="https://Wayne-cpp.github.io/blog/tags/operator/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>C&#43;&#43; 函数对象（Functor）：从 operator() 到标准库函数对象</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-stl-functor/</link>
+      <pubDate>Mon, 16 Aug 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-stl-functor/</guid>
+      <description>深入剖析 C++ 函数对象的本质——重载 operator() 的类。从最简单的函子到标准库提供的算术、比较、逻辑函数对象，再到 C++11 std::function 的类型擦除与 Lambda 的关系，讲清楚函子在 STL 算法中的核心角色。</description>
+    </item>
+  </channel>
+</rss>
