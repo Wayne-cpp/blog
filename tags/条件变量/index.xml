@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>条件变量 on Wayne Blog</title>
+    <link>https://Wayne-cpp.github.io/blog/tags/%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8F/</link>
+    <description>Recent content in 条件变量 on Wayne Blog</description>
+    <image>
+      <title>Wayne Blog</title>
+      <url>https://Wayne-cpp.github.io/blog/papermod-cover.png</url>
+      <link>https://Wayne-cpp.github.io/blog/papermod-cover.png</link>
+    </image>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Sat, 31 Jul 2021 10:00:00 +0800</lastBuildDate>
+    <atom:link href="https://Wayne-cpp.github.io/blog/tags/%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8F/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>C&#43;&#43; 多线程编程：从 std::thread 到线程安全的全景解析</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-multithreading/</link>
+      <pubDate>Sat, 31 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-multithreading/</guid>
+      <description>系统梳理 C++ 多线程编程的核心机制。从 C++ 封装线程的设计动机出发，深入剖析 std::thread、互斥锁族、条件变量、std::atomic 的原理与用法，并通过生产者-消费者、线程池等实战场景，讲清楚线程安全的常见模式与陷阱。</description>
+    </item>
+  </channel>
+</rss>
