@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>链表 on Wayne Blog</title>
+    <link>https://Wayne-cpp.github.io/blog/tags/%E9%93%BE%E8%A1%A8/</link>
+    <description>Recent content in 链表 on Wayne Blog</description>
+    <image>
+      <title>Wayne Blog</title>
+      <url>https://Wayne-cpp.github.io/blog/papermod-cover.png</url>
+      <link>https://Wayne-cpp.github.io/blog/papermod-cover.png</link>
+    </image>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Tue, 10 Aug 2021 10:00:00 +0800</lastBuildDate>
+    <atom:link href="https://Wayne-cpp.github.io/blog/tags/%E9%93%BE%E8%A1%A8/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>C&#43;&#43; std::list 与 std::forward_list：链表容器的原理与实践</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-stl-list/</link>
+      <pubDate>Tue, 10 Aug 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-stl-list/</guid>
+      <description>深入剖析 std::list（双向链表）和 std::forward_list（单向链表）的内存结构、节点布局、splice 操作与迭代器失效规则。对比链表与 vector 在不同场景下的性能差异，讲清楚什么时候该用链表、什么时候不该用。</description>
+    </item>
+  </channel>
+</rss>

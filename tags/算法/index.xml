@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>算法 on Wayne Blog</title>
+    <link>https://Wayne-cpp.github.io/blog/tags/%E7%AE%97%E6%B3%95/</link>
+    <description>Recent content in 算法 on Wayne Blog</description>
+    <image>
+      <title>Wayne Blog</title>
+      <url>https://Wayne-cpp.github.io/blog/papermod-cover.png</url>
+      <link>https://Wayne-cpp.github.io/blog/papermod-cover.png</link>
+    </image>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Sun, 15 Aug 2021 10:00:00 +0800</lastBuildDate>
+    <atom:link href="https://Wayne-cpp.github.io/blog/tags/%E7%AE%97%E6%B3%95/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>C&#43;&#43; STL 算法全景：从排序到数值计算的泛型力量</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-stl-algorithms/</link>
+      <pubDate>Sun, 15 Aug 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-stl-algorithms/</guid>
+      <description>系统梳理 C++ STL algorithm 和 numeric 提供的核心算法。从排序、查找、修改、数值计算到 C++17 的新算法，讲清楚算法与迭代器协作的设计思想、复杂度保证与实际运用场景。</description>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Unordered_map on Wayne Blog</title>
+    <link>https://Wayne-cpp.github.io/blog/tags/unordered_map/</link>
+    <description>Recent content in Unordered_map on Wayne Blog</description>
+    <image>
+      <title>Wayne Blog</title>
+      <url>https://Wayne-cpp.github.io/blog/papermod-cover.png</url>
+      <link>https://Wayne-cpp.github.io/blog/papermod-cover.png</link>
+    </image>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Sat, 14 Aug 2021 10:00:00 +0800</lastBuildDate>
+    <atom:link href="https://Wayne-cpp.github.io/blog/tags/unordered_map/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>C&#43;&#43; 无序关联容器：unordered_map 与 unordered_set 的哈希表实现</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-stl-unordered/</link>
+      <pubDate>Sat, 14 Aug 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-stl-unordered/</guid>
+      <description>从哈希表的冲突解决策略出发，深入剖析 std::unordered_map 和 std::unordered_set 的桶数组与链表结构、负载因子与自动扩容机制、自定义哈希函数与相等判断的方法，以及与有序容器的选择指南。</description>
+    </item>
+  </channel>
+</rss>

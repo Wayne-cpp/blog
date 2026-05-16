@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Set on Wayne Blog</title>
+    <link>https://Wayne-cpp.github.io/blog/tags/set/</link>
+    <description>Recent content in Set on Wayne Blog</description>
+    <image>
+      <title>Wayne Blog</title>
+      <url>https://Wayne-cpp.github.io/blog/papermod-cover.png</url>
+      <link>https://Wayne-cpp.github.io/blog/papermod-cover.png</link>
+    </image>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Fri, 13 Aug 2021 10:00:00 +0800</lastBuildDate>
+    <atom:link href="https://Wayne-cpp.github.io/blog/tags/set/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>C&#43;&#43; 有序关联容器：map 与 set 的红黑树实现全解析</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-stl-map-set/</link>
+      <pubDate>Fri, 13 Aug 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-stl-map-set/</guid>
+      <description>从红黑树的平衡原理出发，深入剖析 std::map、std::set、std::multimap、std::multiset 的底层实现、查找/插入/删除的时间复杂度、自定义比较器的方法，以及有序遍历、范围查询等独特能力。</description>
+    </item>
+  </channel>
+</rss>

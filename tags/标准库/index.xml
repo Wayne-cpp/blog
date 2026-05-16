@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>标准库 on Wayne Blog</title>
+    <link>https://Wayne-cpp.github.io/blog/tags/%E6%A0%87%E5%87%86%E5%BA%93/</link>
+    <description>Recent content in 标准库 on Wayne Blog</description>
+    <image>
+      <title>Wayne Blog</title>
+      <url>https://Wayne-cpp.github.io/blog/papermod-cover.png</url>
+      <link>https://Wayne-cpp.github.io/blog/papermod-cover.png</link>
+    </image>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Sun, 08 Aug 2021 10:00:00 +0800</lastBuildDate>
+    <atom:link href="https://Wayne-cpp.github.io/blog/tags/%E6%A0%87%E5%87%86%E5%BA%93/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>C&#43;&#43; STL 概览与迭代器：标准模板库的设计哲学</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-stl-overview-iterators/</link>
+      <pubDate>Sun, 08 Aug 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-stl-overview-iterators/</guid>
+      <description>系统介绍 C++ STL 的六大组件（容器、迭代器、算法、函数对象、适配器、分配器）的设计哲学与协作关系，深入剖析迭代器的分类、失效规则与自定义迭代器的实现方法。</description>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Queue on Wayne Blog</title>
+    <link>https://Wayne-cpp.github.io/blog/tags/queue/</link>
+    <description>Recent content in Queue on Wayne Blog</description>
+    <image>
+      <title>Wayne Blog</title>
+      <url>https://Wayne-cpp.github.io/blog/papermod-cover.png</url>
+      <link>https://Wayne-cpp.github.io/blog/papermod-cover.png</link>
+    </image>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 12 Aug 2021 10:00:00 +0800</lastBuildDate>
+    <atom:link href="https://Wayne-cpp.github.io/blog/tags/queue/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>C&#43;&#43; 容器适配器：stack、queue 与 priority_queue 的封装艺术</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-stl-adapters/</link>
+      <pubDate>Thu, 12 Aug 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-stl-adapters/</guid>
+      <description>深入剖析 C++ 三种容器适配器的设计原理与底层实现。从适配器模式出发，讲清楚 stack 的 LIFO 栈、queue 的 FIFO 队列、priority_queue 的堆实现，以及如何选择底层容器、自定义比较器和实际应用场景。</description>
+    </item>
+  </channel>
+</rss>

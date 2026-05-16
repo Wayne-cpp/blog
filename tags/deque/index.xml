@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Deque on Wayne Blog</title>
+    <link>https://Wayne-cpp.github.io/blog/tags/deque/</link>
+    <description>Recent content in Deque on Wayne Blog</description>
+    <image>
+      <title>Wayne Blog</title>
+      <url>https://Wayne-cpp.github.io/blog/papermod-cover.png</url>
+      <link>https://Wayne-cpp.github.io/blog/papermod-cover.png</link>
+    </image>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Wed, 11 Aug 2021 10:00:00 +0800</lastBuildDate>
+    <atom:link href="https://Wayne-cpp.github.io/blog/tags/deque/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>C&#43;&#43; std::deque：双端队列的内存布局与工程取舍</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-stl-deque/</link>
+      <pubDate>Wed, 11 Aug 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-stl-deque/</guid>
+      <description>深入剖析 std::deque 的分段连续内存结构、中控数组的工作原理、与 vector 的性能差异。讲清楚 deque 为什么是 stack 和 queue 的默认底层容器，以及何时应该选择 deque 而非 vector。</description>
+    </item>
+  </channel>
+</rss>

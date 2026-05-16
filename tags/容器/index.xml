@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>容器 on Wayne Blog</title>
+    <link>https://Wayne-cpp.github.io/blog/tags/%E5%AE%B9%E5%99%A8/</link>
+    <description>Recent content in 容器 on Wayne Blog</description>
+    <image>
+      <title>Wayne Blog</title>
+      <url>https://Wayne-cpp.github.io/blog/papermod-cover.png</url>
+      <link>https://Wayne-cpp.github.io/blog/papermod-cover.png</link>
+    </image>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 09 Aug 2021 10:00:00 +0800</lastBuildDate>
+    <atom:link href="https://Wayne-cpp.github.io/blog/tags/%E5%AE%B9%E5%99%A8/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>C&#43;&#43; std::vector 深度解析：最常用的容器背后做了什么</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-stl-vector/</link>
+      <pubDate>Mon, 09 Aug 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-stl-vector/</guid>
+      <description>从底层实现原理出发，深入剖析 std::vector 的内存管理策略、扩容机制、迭代器失效规则与性能特征。讲清楚 push_back、emplace_back、reserve、shrink_to_fit 等关键操作背后的设计决策，以及 vector 与其他序列容器的选择指南。</description>
+    </item>
+  </channel>
+</rss>
