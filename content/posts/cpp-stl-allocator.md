@@ -1,5 +1,5 @@
 ---
-title: "C++ 分配器（Allocator）：STL 容器的内存管理抽象"
+title: "C++ STL 分配器：容器的内存管理抽象"
 date: 2021-08-17T10:00:00+08:00
 tags: ["C++", "STL", "分配器", "Allocator", "内存管理"]
 categories: ["技术"]
