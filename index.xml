@@ -28,6 +28,13 @@
       <description>探讨如何利用 AI Agent 协作流水线，在零业务代码的情况下实现技术情报的自动采集、深度分析与结构化归档。</description>
     </item>
     <item>
+      <title>C&#43;&#43; 虚函数、虚函数表与虚函数指针：多态的底层实现全解析</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-virtual-function/</link>
+      <pubDate>Tue, 20 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-virtual-function/</guid>
+      <description>从编译器实现角度深入剖析 C++ 多态的核心机制：虚函数、虚函数表（vtable）与虚函数指针（vptr）。通过内存布局分析、代码示例和汇编视角，讲清楚动态绑定的底层原理，以及纯虚函数、多重继承、虚析构函数等关键场景的工程实践。</description>
+    </item>
+    <item>
       <title>C/C&#43;&#43; memcpy 与 strcpy：语义差异、底层实现与 *cpy 家族全梳理</title>
       <link>https://Wayne-cpp.github.io/blog/posts/cpp-memcpy-vs-strcpy/</link>
       <pubDate>Thu, 15 Jul 2021 10:00:00 +0800</pubDate>
