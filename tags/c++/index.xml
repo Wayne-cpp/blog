@@ -21,11 +21,11 @@
       <description>系统梳理 C++ 多线程编程的核心机制。从 C++ 封装线程的设计动机出发，深入剖析 std::thread、互斥锁族、条件变量、std::atomic 的原理与用法，并通过生产者-消费者、线程池等实战场景，讲清楚线程安全的常见模式与陷阱。</description>
     </item>
     <item>
-      <title>C&#43;&#43; 函数、Lambda、Bind 与模板：从回调到泛型的思想演进</title>
-      <link>https://Wayne-cpp.github.io/blog/posts/cpp-function-lambda-template/</link>
+      <title>C&#43;&#43; 函数式与泛型编程全景：从函数指针到 Lambda、模板与异步</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-functional-and-generic/</link>
       <pubDate>Wed, 28 Jul 2021 10:00:00 +0800</pubDate>
-      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-function-lambda-template/</guid>
-      <description>系统梳理 C++ 中可调用对象的演进脉络：从函数指针到 std::function、从 std::bind 到 lambda 表达式、从手动指定类型到 auto/decltype 类型推导、从具体类型到模板泛型编程。讲清楚这些机制各自解决什么问题、为什么要引入这么多层抽象，以及在实际工程中如何选择。</description>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-functional-and-generic/</guid>
+      <description>从 C 语言函数指针出发，沿 C++ 演进脉络梳理 std::function、std::bind、Lambda 表达式、std::future、类型推导、完美转发与模板编程。不是一个个孤立特性的罗列，而是一条连贯的抽象之路——为什么 C++ 需要这些东西，它们解决的是什么问题，彼此如何替代与互补。</description>
     </item>
     <item>
       <title>C&#43;&#43; 左值、右值与移动语义：值类别全景解析</title>
