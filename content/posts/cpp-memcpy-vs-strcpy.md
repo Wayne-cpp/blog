@@ -2,7 +2,7 @@
 title: "C/C++ memcpy 与 strcpy：语义差异、底层实现与 *cpy 家族全梳理"
 date: 2021-07-15T10:00:00+08:00
 tags: ["C++", "C", "memcpy", "strcpy", "字符串", "内存操作"]
-categories: ["技术"]
+categories: ["C++"]
 summary: "memcpy 和 strcpy 都能复制一段内存，但语义截然不同——一个按字节拷贝，一个按字符串拷贝。本文从接口差异出发，深入 glibc 的底层实现（SSE/AVX 向量化拷贝），并梳理 strncpy、memmove、strcat 等 *cpy 系列函数各自的适用场景与常见陷阱。"
 ShowToc: true
 ---

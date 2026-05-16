@@ -2,7 +2,7 @@
 title: "C++ 无序关联容器：unordered_map 与 unordered_set 的哈希表实现"
 date: 2021-08-14T10:00:00+08:00
 tags: ["C++", "STL", "unordered_map", "unordered_set", "哈希表"]
-categories: ["技术"]
+categories: ["C++"]
 summary: "从哈希表的冲突解决策略出发，深入剖析 std::unordered_map 和 std::unordered_set 的桶数组与链表结构、负载因子与自动扩容机制、自定义哈希函数与相等判断的方法，以及与有序容器的选择指南。"
 ShowToc: true
 ---

@@ -2,7 +2,7 @@
 title: "C++ STL 算法全景：从排序到数值计算的泛型力量"
 date: 2021-08-15T10:00:00+08:00
 tags: ["C++", "STL", "算法", "排序", "查找"]
-categories: ["技术"]
+categories: ["C++"]
 summary: "系统梳理 C++ STL algorithm 和 numeric 提供的核心算法。从排序、查找、修改、数值计算到 C++17 的新算法，讲清楚算法与迭代器协作的设计思想、复杂度保证与实际运用场景。"
 ShowToc: true
 ---

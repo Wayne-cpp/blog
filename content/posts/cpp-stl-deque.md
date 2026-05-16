@@ -2,7 +2,7 @@
 title: "C++ std::deque：双端队列的内存布局与工程取舍"
 date: 2021-08-11T10:00:00+08:00
 tags: ["C++", "STL", "deque", "双端队列"]
-categories: ["技术"]
+categories: ["C++"]
 summary: "深入剖析 std::deque 的分段连续内存结构、中控数组的工作原理、与 vector 的性能差异。讲清楚 deque 为什么是 stack 和 queue 的默认底层容器，以及何时应该选择 deque 而非 vector。"
 ShowToc: true
 ---

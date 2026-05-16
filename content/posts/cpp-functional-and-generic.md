@@ -2,7 +2,7 @@
 title: "C++ 函数式与泛型编程全景：从函数指针到 Lambda、模板与异步"
 date: 2021-07-28T10:00:00+08:00
 tags: ["C++", "Lambda", "模板", "类型推导", "完美转发", "std::function", "异步"]
-categories: ["技术"]
+categories: ["C++"]
 summary: "从 C 语言函数指针出发，沿 C++ 演进脉络梳理 std::function、std::bind、Lambda 表达式、std::future、类型推导、完美转发与模板编程。不是一个个孤立特性的罗列，而是一条连贯的抽象之路——为什么 C++ 需要这些东西，它们解决的是什么问题，彼此如何替代与互补。"
 ShowToc: true
 ---

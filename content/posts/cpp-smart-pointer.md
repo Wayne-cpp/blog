@@ -2,7 +2,7 @@
 title: "C++ 智能指针：从 RAII 到所有权语义的全景解析"
 date: 2021-07-22T10:00:00+08:00
 tags: ["C++", "智能指针", "RAII", "内存管理", "unique_ptr", "shared_ptr"]
-categories: ["技术"]
+categories: ["C++"]
 summary: "系统梳理 C++ 智能指针的设计哲学与实现原理。从 RAII 机制出发，深入剖析 unique_ptr 的独占所有权、shared_ptr 的引用计数与控制块、weak_ptr 的观察者角色，以及自定义删除器、循环引用、性能开销等工程关键问题。"
 ShowToc: true
 ---

@@ -2,7 +2,7 @@
 title: "C++ 容器适配器：stack、queue 与 priority_queue 的封装艺术"
 date: 2021-08-12T10:00:00+08:00
 tags: ["C++", "STL", "stack", "queue", "priority_queue", "容器适配器"]
-categories: ["技术"]
+categories: ["C++"]
 summary: "深入剖析 C++ 三种容器适配器的设计原理与底层实现。从适配器模式出发，讲清楚 stack 的 LIFO 栈、queue 的 FIFO 队列、priority_queue 的堆实现，以及如何选择底层容器、自定义比较器和实际应用场景。"
 ShowToc: true
 ---

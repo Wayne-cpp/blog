@@ -2,7 +2,7 @@
 title: "C++ new/delete 与 C malloc/free：从接口差异到 glibc 堆管理原理"
 date: 2021-07-14T10:00:00+08:00
 tags: ["C++", "内存管理", "malloc", "new", "glibc", "堆"]
-categories: ["技术"]
+categories: ["C++"]
 summary: "C++ 的 new/delete 和 C 语言的 malloc/free 都用于动态内存管理，但它们分属不同的抽象层级。本文从接口语义出发，逐层深入到 new 如何调用 malloc、glibc ptmalloc2 的 chunk 结构与分配回收机制、以及 placement new 与 operator new 重载等进阶话题。"
 ShowToc: true
 ---

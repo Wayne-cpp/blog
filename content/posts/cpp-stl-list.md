@@ -2,7 +2,7 @@
 title: "C++ std::list 与 std::forward_list：链表容器的原理与实践"
 date: 2021-08-10T10:00:00+08:00
 tags: ["C++", "STL", "list", "forward_list", "链表"]
-categories: ["技术"]
+categories: ["C++"]
 summary: "深入剖析 std::list（双向链表）和 std::forward_list（单向链表）的内存结构、节点布局、splice 操作与迭代器失效规则。对比链表与 vector 在不同场景下的性能差异，讲清楚什么时候该用链表、什么时候不该用。"
 ShowToc: true
 ---

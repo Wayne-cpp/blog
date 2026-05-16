@@ -2,7 +2,7 @@
 title: "C++ 中 static、const、extern 关键字的作用与区别"
 date: 2021-07-10T14:00:00+08:00
 tags: ["C++", "关键字", "编译链接"]
-categories: ["技术"]
+categories: ["C++"]
 summary: "深入解析 C++ 中 static、const、extern 三个关键字的语义：它们在不同语境（变量、函数、类成员、翻译单元）下的行为差异、常见陷阱，以及如何组合使用。"
 ShowToc: true
 ---

@@ -2,7 +2,7 @@
 title: "C++ std::vector 深度解析：最常用的容器背后做了什么"
 date: 2021-08-09T10:00:00+08:00
 tags: ["C++", "STL", "vector", "容器"]
-categories: ["技术"]
+categories: ["C++"]
 summary: "从底层实现原理出发，深入剖析 std::vector 的内存管理策略、扩容机制、迭代器失效规则与性能特征。讲清楚 push_back、emplace_back、reserve、shrink_to_fit 等关键操作背后的设计决策，以及 vector 与其他序列容器的选择指南。"
 ShowToc: true
 ---

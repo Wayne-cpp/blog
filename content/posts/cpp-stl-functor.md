@@ -2,7 +2,7 @@
 title: "C++ STL 函数对象：从 operator() 到标准库函数对象"
 date: 2021-08-16T10:00:00+08:00
 tags: ["C++", "STL", "函数对象", "Functor", "operator()"]
-categories: ["技术"]
+categories: ["C++"]
 summary: "深入剖析 C++ 函数对象的本质——重载 operator() 的类。从最简单的函子到标准库提供的算术、比较、逻辑函数对象，再到 C++11 std::function 的类型擦除与 Lambda 的关系，讲清楚函子在 STL 算法中的核心角色。"
 ShowToc: true
 ---

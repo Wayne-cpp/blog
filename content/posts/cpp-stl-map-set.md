@@ -2,7 +2,7 @@
 title: "C++ 有序关联容器：map 与 set 的红黑树实现全解析"
 date: 2021-08-13T10:00:00+08:00
 tags: ["C++", "STL", "map", "set", "红黑树", "关联容器"]
-categories: ["技术"]
+categories: ["C++"]
 summary: "从红黑树的平衡原理出发，深入剖析 std::map、std::set、std::multimap、std::multiset 的底层实现、查找/插入/删除的时间复杂度、自定义比较器的方法，以及有序遍历、范围查询等独特能力。"
 ShowToc: true
 ---

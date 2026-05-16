@@ -2,7 +2,7 @@
 title: "C++ STL 分配器：容器的内存管理抽象"
 date: 2021-08-17T10:00:00+08:00
 tags: ["C++", "STL", "分配器", "Allocator", "内存管理"]
-categories: ["技术"]
+categories: ["C++"]
 summary: "深入剖析 C++ 分配器的设计哲学与实现机制。从默认的 std::allocator 出发，讲清楚 allocate/deallocate、construct/destroy 的演进，以及如何自定义分配器实现内存池、arena 分配等高性能策略。"
 ShowToc: true
 ---

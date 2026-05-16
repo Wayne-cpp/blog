@@ -2,7 +2,7 @@
 title: "C++ struct 与 class：从历史渊源到工程抉择"
 date: 2021-07-13T10:00:00+08:00
 tags: ["C++", "struct", "class", "面向对象"]
-categories: ["技术"]
+categories: ["C++"]
 summary: "C++ 同时拥有 struct 和 class 两个关键字，它们在语言层面几乎等价，却在工程实践中承载着不同的语义约定。本文从 C 语言的历史遗留出发，讲清楚两者的技术差异、现代 C++ 的聚合体初始化演变，以及 Google C++ Style Guide 与 C++ Core Guidelines 的使用建议。"
 ShowToc: true
 ---
