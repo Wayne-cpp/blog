@@ -28,6 +28,13 @@
       <description>探讨如何利用 AI Agent 协作流水线，在零业务代码的情况下实现技术情报的自动采集、深度分析与结构化归档。</description>
     </item>
     <item>
+      <title>C&#43;&#43; 函数、Lambda、Bind 与模板：从回调到泛型的思想演进</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-function-lambda-template/</link>
+      <pubDate>Wed, 28 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-function-lambda-template/</guid>
+      <description>系统梳理 C++ 中可调用对象的演进脉络：从函数指针到 std::function、从 std::bind 到 lambda 表达式、从手动指定类型到 auto/decltype 类型推导、从具体类型到模板泛型编程。讲清楚这些机制各自解决什么问题、为什么要引入这么多层抽象，以及在实际工程中如何选择。</description>
+    </item>
+    <item>
       <title>C&#43;&#43; 左值、右值与移动语义：值类别全景解析</title>
       <link>https://Wayne-cpp.github.io/blog/posts/cpp-lvalue-rvalue-move-semantics/</link>
       <pubDate>Sun, 25 Jul 2021 10:00:00 +0800</pubDate>

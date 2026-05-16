@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>模板 on Wayne Blog</title>
+    <link>https://Wayne-cpp.github.io/blog/tags/%E6%A8%A1%E6%9D%BF/</link>
+    <description>Recent content in 模板 on Wayne Blog</description>
+    <image>
+      <title>Wayne Blog</title>
+      <url>https://Wayne-cpp.github.io/blog/papermod-cover.png</url>
+      <link>https://Wayne-cpp.github.io/blog/papermod-cover.png</link>
+    </image>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Wed, 28 Jul 2021 10:00:00 +0800</lastBuildDate>
+    <atom:link href="https://Wayne-cpp.github.io/blog/tags/%E6%A8%A1%E6%9D%BF/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>C&#43;&#43; 函数、Lambda、Bind 与模板：从回调到泛型的思想演进</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/cpp-function-lambda-template/</link>
+      <pubDate>Wed, 28 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/cpp-function-lambda-template/</guid>
+      <description>系统梳理 C++ 中可调用对象的演进脉络：从函数指针到 std::function、从 std::bind 到 lambda 表达式、从手动指定类型到 auto/decltype 类型推导、从具体类型到模板泛型编程。讲清楚这些机制各自解决什么问题、为什么要引入这么多层抽象，以及在实际工程中如何选择。</description>
+    </item>
+  </channel>
+</rss>

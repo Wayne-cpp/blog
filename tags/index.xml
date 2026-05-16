@@ -65,8 +65,43 @@
     <item>
       <title>C&#43;&#43;</title>
       <link>https://Wayne-cpp.github.io/blog/tags/c&#43;&#43;/</link>
-      <pubDate>Sun, 25 Jul 2021 10:00:00 +0800</pubDate>
+      <pubDate>Wed, 28 Jul 2021 10:00:00 +0800</pubDate>
       <guid>https://Wayne-cpp.github.io/blog/tags/c&#43;&#43;/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Lambda</title>
+      <link>https://Wayne-cpp.github.io/blog/tags/lambda/</link>
+      <pubDate>Wed, 28 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/tags/lambda/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Std::function</title>
+      <link>https://Wayne-cpp.github.io/blog/tags/stdfunction/</link>
+      <pubDate>Wed, 28 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/tags/stdfunction/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>模板</title>
+      <link>https://Wayne-cpp.github.io/blog/tags/%E6%A8%A1%E6%9D%BF/</link>
+      <pubDate>Wed, 28 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/tags/%E6%A8%A1%E6%9D%BF/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>泛型编程</title>
+      <link>https://Wayne-cpp.github.io/blog/tags/%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B/</link>
+      <pubDate>Wed, 28 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/tags/%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>类型推导</title>
+      <link>https://Wayne-cpp.github.io/blog/tags/%E7%B1%BB%E5%9E%8B%E6%8E%A8%E5%AF%BC/</link>
+      <pubDate>Wed, 28 Jul 2021 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/tags/%E7%B1%BB%E5%9E%8B%E6%8E%A8%E5%AF%BC/</guid>
       <description></description>
     </item>
     <item>
