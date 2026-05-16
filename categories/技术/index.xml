@@ -28,7 +28,7 @@
       <description>探讨如何利用 AI Agent 协作流水线，在零业务代码的情况下实现技术情报的自动采集、深度分析与结构化归档。</description>
     </item>
     <item>
-      <title>C&#43;&#43; 分配器（Allocator）：STL 容器的内存管理抽象</title>
+      <title>C&#43;&#43; STL 分配器：容器的内存管理抽象</title>
       <link>https://Wayne-cpp.github.io/blog/posts/cpp-stl-allocator/</link>
       <pubDate>Tue, 17 Aug 2021 10:00:00 +0800</pubDate>
       <guid>https://Wayne-cpp.github.io/blog/posts/cpp-stl-allocator/</guid>

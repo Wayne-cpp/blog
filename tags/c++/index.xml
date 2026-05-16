@@ -14,7 +14,7 @@
     <lastBuildDate>Tue, 17 Aug 2021 10:00:00 +0800</lastBuildDate>
     <atom:link href="https://Wayne-cpp.github.io/blog/tags/c++/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>C&#43;&#43; 分配器（Allocator）：STL 容器的内存管理抽象</title>
+      <title>C&#43;&#43; STL 分配器：容器的内存管理抽象</title>
       <link>https://Wayne-cpp.github.io/blog/posts/cpp-stl-allocator/</link>
       <pubDate>Tue, 17 Aug 2021 10:00:00 +0800</pubDate>
       <guid>https://Wayne-cpp.github.io/blog/posts/cpp-stl-allocator/</guid>
