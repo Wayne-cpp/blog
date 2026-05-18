@@ -11,8 +11,15 @@
     </image>
     <generator>Hugo</generator>
     <language>en</language>
-    <lastBuildDate>Tue, 12 May 2026 10:00:00 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 18 May 2026 10:00:00 +0800</lastBuildDate>
     <atom:link href="https://Wayne-cpp.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>从流水线到工作流：AI 知识库 V3 的多 Agent 进化</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/ai-knowledge-base-v3-multi-agent/</link>
+      <pubDate>Mon, 18 May 2026 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/ai-knowledge-base-v3-multi-agent/</guid>
+      <description>AI 知识库从 V2 的线性流水线，进化到 V3 的 LangGraph 多 Agent 工作流。引入审核循环、条件路由、设计模式和生产加固——探讨为什么线性 Pipeline 不够用，以及状态图如何解决它的问题。</description>
+    </item>
     <item>
       <title>从零代码到工程化：AI 知识库 V2 的进化之路</title>
       <link>https://Wayne-cpp.github.io/blog/posts/ai-knowledge-base-v2-pipeline/</link>

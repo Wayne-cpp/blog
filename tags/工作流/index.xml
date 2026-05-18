@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>工作流 on Wayne Blog</title>
+    <link>https://Wayne-cpp.github.io/blog/tags/%E5%B7%A5%E4%BD%9C%E6%B5%81/</link>
+    <description>Recent content in 工作流 on Wayne Blog</description>
+    <image>
+      <title>Wayne Blog</title>
+      <url>https://Wayne-cpp.github.io/blog/papermod-cover.png</url>
+      <link>https://Wayne-cpp.github.io/blog/papermod-cover.png</link>
+    </image>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 18 May 2026 10:00:00 +0800</lastBuildDate>
+    <atom:link href="https://Wayne-cpp.github.io/blog/tags/%E5%B7%A5%E4%BD%9C%E6%B5%81/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>从流水线到工作流：AI 知识库 V3 的多 Agent 进化</title>
+      <link>https://Wayne-cpp.github.io/blog/posts/ai-knowledge-base-v3-multi-agent/</link>
+      <pubDate>Mon, 18 May 2026 10:00:00 +0800</pubDate>
+      <guid>https://Wayne-cpp.github.io/blog/posts/ai-knowledge-base-v3-multi-agent/</guid>
+      <description>AI 知识库从 V2 的线性流水线，进化到 V3 的 LangGraph 多 Agent 工作流。引入审核循环、条件路由、设计模式和生产加固——探讨为什么线性 Pipeline 不够用，以及状态图如何解决它的问题。</description>
+    </item>
+  </channel>
+</rss>
